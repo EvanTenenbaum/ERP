@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import Button from '../../ui/Button'; // Fixed import path
+import Button from '../ui/Button'; // Fixed import path
 
 export default function ReportExport({ reportType, onClose }) {
   const [format, setFormat] = useState('pdf');

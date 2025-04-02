@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import Button from '../../ui/Button'; // Fixed import path
+import Button from '../ui/Button'; // Fixed import path
 
 export default function ReportViewer({ reportType }) {
   const [timeRange, setTimeRange] = useState('month');
@@ -301,39 +301,50 @@ export default function ReportViewer({ reportType }) {
   };
   
   const renderSalesTrends = () => {
-    const data = timeRange === 'month' ? reportData.salesTrends.monthly : reportData.salesTrends.weekly;
-    
+    const data = reportData.salesTrends;
     return (
-      <div>
-        <div className="mb-4">
-          <label className="form-label">Time Range</label>
-          <select 
-            className="form-input w-48"
-            value={timeRange}
-            onChange={(e) => setTimeRange(e.target.value)}
-          >
-            <option value="month">Monthly</option>
-            <option value="week">Weekly</option>
-          </select>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="card">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Monthly Sales</h3>
+          <div className="table-container">
+            <table className="table">
+              <thead className="table-header">
+                <tr>
+                  <th className="table-header-cell">Month</th>
+                  <th className="table-header-cell">Amount</th>
+                </tr>
+              </thead>
+              <tbody className="table-body">
+                {data.monthly.map((item, index) => (
+                  <tr key={index} className="table-row">
+                    <td className="table-cell font-medium text-gray-900 dark:text-white">{item.month}</td>
+                    <td className="table-cell">{item.amount}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
         
         <div className="card">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-            {timeRange === 'month' ? 'Monthly' : 'Weekly'} Sales Trend
-          </h3>
-          <div className="h-64 flex items-end justify-between px-4">
-            {data.map((item, index) => (
-              <div key={index} className="flex flex-col items-center">
-                <div 
-                  className="bg-primary-500 w-16 rounded-t-md" 
-                  style={{ 
-                    height: `${(parseFloat(item.amount.replace('$', '').replace(',', '')) / 30000) * 100}%` 
-                  }}
-                ></div>
-                <div className="mt-2 text-sm text-gray-500">{timeRange === 'month' ? item.month : item.week}</div>
-                <div className="text-xs text-gray-500">{item.amount}</div>
-              </div>
-            ))}
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Weekly Sales</h3>
+          <div className="table-container">
+            <table className="table">
+              <thead className="table-header">
+                <tr>
+                  <th className="table-header-cell">Week</th>
+                  <th className="table-header-cell">Amount</th>
+                </tr>
+              </thead>
+              <tbody className="table-body">
+                {data.weekly.map((item, index) => (
+                  <tr key={index} className="table-row">
+                    <td className="table-cell font-medium text-gray-900 dark:text-white">{item.week}</td>
+                    <td className="table-cell">{item.amount}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -376,5 +387,323 @@ export default function ReportViewer({ reportType }) {
                     <tr key={index} className="table-row">
                       <td className="table-cell font-medium text-gray-900 dark:text-white">{location.name}</td>
                       <td className="table-cell">{location.items}</td>
-                      <td className
-(Content truncated due to size limit. Use line ranges to read in chunks)
+                      <td className="table-cell">{location.value}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <div className="card">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Inventory by Category</h3>
+            <div className="table-container">
+              <table className="table">
+                <thead className="table-header">
+                  <tr>
+                    <th className="table-header-cell">Category</th>
+                    <th className="table-header-cell">Items</th>
+                    <th className="table-header-cell">Value</th>
+                  </tr>
+                </thead>
+                <tbody className="table-body">
+                  {data.categories.map((category, index) => (
+                    <tr key={index} className="table-row">
+                      <td className="table-cell font-medium text-gray-900 dark:text-white">{category.name}</td>
+                      <td className="table-cell">{category.items}</td>
+                      <td className="table-cell">{category.value}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+  
+  const renderInventoryMovement = () => {
+    const data = reportData.inventoryMovement;
+    return (
+      <div>
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-4 mb-6">
+          <div className="card">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Received</h3>
+            <p className="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">{data.received}</p>
+          </div>
+          <div className="card">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Shipped</h3>
+            <p className="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">{data.shipped}</p>
+          </div>
+          <div className="card">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Returned</h3>
+            <p className="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">{data.returned}</p>
+          </div>
+          <div className="card">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Adjusted</h3>
+            <p className="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">{data.adjusted}</p>
+          </div>
+        </div>
+        
+        <div className="card">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Top Moving Products</h3>
+          <div className="table-container">
+            <table className="table">
+              <thead className="table-header">
+                <tr>
+                  <th className="table-header-cell">Product</th>
+                  <th className="table-header-cell">Received</th>
+                  <th className="table-header-cell">Shipped</th>
+                </tr>
+              </thead>
+              <tbody className="table-body">
+                {data.topMovers.map((product, index) => (
+                  <tr key={index} className="table-row">
+                    <td className="table-cell font-medium text-gray-900 dark:text-white">{product.name}</td>
+                    <td className="table-cell">{product.received}</td>
+                    <td className="table-cell">{product.shipped}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    );
+  };
+  
+  const renderLocationAnalysis = () => {
+    const data = reportData.locationAnalysis;
+    return (
+      <div>
+        {data.locations.map((location, index) => (
+          <div key={index} className="card mb-6">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">{location.name} ({location.totalItems} items)</h3>
+            <div className="table-container">
+              <table className="table">
+                <thead className="table-header">
+                  <tr>
+                    <th className="table-header-cell">Category</th>
+                    <th className="table-header-cell">Items</th>
+                  </tr>
+                </thead>
+                <tbody className="table-body">
+                  {location.categories.map((category, catIndex) => (
+                    <tr key={catIndex} className="table-row">
+                      <td className="table-cell font-medium text-gray-900 dark:text-white">{category.name}</td>
+                      <td className="table-cell">{category.items}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+  
+  const renderCustomerActivity = () => {
+    const data = reportData.customerActivity;
+    return (
+      <div>
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 mb-6">
+          <div className="card">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Customers</h3>
+            <p className="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">{data.totalCustomers}</p>
+          </div>
+          <div className="card">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Active Customers</h3>
+            <p className="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">{data.activeCustomers}</p>
+          </div>
+          <div className="card">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">New Customers</h3>
+            <p className="mt-1 text-2xl font-semibold text-green-600">{data.newCustomers}</p>
+          </div>
+        </div>
+        
+        <div className="card">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Top Customers</h3>
+          <div className="table-container">
+            <table className="table">
+              <thead className="table-header">
+                <tr>
+                  <th className="table-header-cell">Customer</th>
+                  <th className="table-header-cell">Orders</th>
+                  <th className="table-header-cell">Value</th>
+                </tr>
+              </thead>
+              <tbody className="table-body">
+                {data.topCustomers.map((customer, index) => (
+                  <tr key={index} className="table-row">
+                    <td className="table-cell font-medium text-gray-900 dark:text-white">{customer.name}</td>
+                    <td className="table-cell">{customer.orders}</td>
+                    <td className="table-cell">{customer.value}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    );
+  };
+  
+  const renderPaymentHistory = () => {
+    const data = reportData.paymentHistory;
+    return (
+      <div>
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 mb-6">
+          <div className="card">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Received</h3>
+            <p className="mt-1 text-2xl font-semibold text-green-600">{data.totalReceived}</p>
+          </div>
+          <div className="card">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Outstanding</h3>
+            <p className="mt-1 text-2xl font-semibold text-yellow-600">{data.outstanding}</p>
+          </div>
+          <div className="card">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Overdue</h3>
+            <p className="mt-1 text-2xl font-semibold text-red-600">{data.overdue}</p>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="card">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Payment Methods</h3>
+            <div className="table-container">
+              <table className="table">
+                <thead className="table-header">
+                  <tr>
+                    <th className="table-header-cell">Method</th>
+                    <th className="table-header-cell">Amount</th>
+                    <th className="table-header-cell">Percentage</th>
+                  </tr>
+                </thead>
+                <tbody className="table-body">
+                  {data.paymentMethods.map((method, index) => (
+                    <tr key={index} className="table-row">
+                      <td className="table-cell font-medium text-gray-900 dark:text-white">{method.method}</td>
+                      <td className="table-cell">{method.amount}</td>
+                      <td className="table-cell">{method.percentage}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <div className="card">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Recent Payments</h3>
+            <div className="table-container">
+              <table className="table">
+                <thead className="table-header">
+                  <tr>
+                    <th className="table-header-cell">Customer</th>
+                    <th className="table-header-cell">Date</th>
+                    <th className="table-header-cell">Amount</th>
+                    <th className="table-header-cell">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="table-body">
+                  {data.recentPayments.map((payment, index) => (
+                    <tr key={index} className="table-row">
+                      <td className="table-cell font-medium text-gray-900 dark:text-white">{payment.customer}</td>
+                      <td className="table-cell">{payment.date}</td>
+                      <td className="table-cell">{payment.amount}</td>
+                      <td className="table-cell">
+                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                          {payment.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+  
+  const renderCreditRecommendations = () => {
+    const data = reportData.creditRecommendations;
+    return (
+      <div className="card">
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Credit Recommendations</h3>
+        <div className="table-container">
+          <table className="table">
+            <thead className="table-header">
+              <tr>
+                <th className="table-header-cell">Customer</th>
+                <th className="table-header-cell">Current Credit</th>
+                <th className="table-header-cell">Recommended Credit</th>
+                <th className="table-header-cell">Risk Level</th>
+              </tr>
+            </thead>
+            <tbody className="table-body">
+              {data.customers.map((customer, index) => (
+                <tr key={index} className="table-row">
+                  <td className="table-cell font-medium text-gray-900 dark:text-white">{customer.name}</td>
+                  <td className="table-cell">{customer.currentCredit}</td>
+                  <td className="table-cell">{customer.recommendedCredit}</td>
+                  <td className="table-cell">
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                      customer.riskLevel === 'Low' ? 'bg-green-100 text-green-800' :
+                      customer.riskLevel === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-red-100 text-red-800'
+                    }`}>
+                      {customer.riskLevel}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
+  
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div className="space-x-2">
+          <Button 
+            variant={timeRange === 'week' ? 'primary' : 'outline'} 
+            onClick={() => setTimeRange('week')}
+          >
+            Week
+          </Button>
+          <Button 
+            variant={timeRange === 'month' ? 'primary' : 'outline'} 
+            onClick={() => setTimeRange('month')}
+          >
+            Month
+          </Button>
+          <Button 
+            variant={timeRange === 'quarter' ? 'primary' : 'outline'} 
+            onClick={() => setTimeRange('quarter')}
+          >
+            Quarter
+          </Button>
+          <Button 
+            variant={timeRange === 'year' ? 'primary' : 'outline'} 
+            onClick={() => setTimeRange('year')}
+          >
+            Year
+          </Button>
+        </div>
+        
+        <div className="space-x-2">
+          <Button variant="outline">Print</Button>
+          <Button>Export</Button>
+        </div>
+      </div>
+      
+      {renderReport()}
+    </div>
+  );
+}
