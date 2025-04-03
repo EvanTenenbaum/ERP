@@ -21,7 +21,7 @@ export default function Home() {
             <p className="text-gray-600 dark:text-gray-300 mb-4">
               Track inventory across multiple locations with product images and detailed information.
             </p>
-            <Link href="/dashboard/inventory" className="btn btn-primary inline-block">
+            <Link href="/{dashboard}/inventory" className="btn btn-primary inline-block">
               Explore Inventory
             </Link>
           </div>
@@ -33,7 +33,7 @@ export default function Home() {
             <p className="text-gray-600 dark:text-gray-300 mb-4">
               Manage customer information, track sales history, and monitor payment patterns.
             </p>
-            <Link href="/dashboard/customers" className="btn btn-primary inline-block">
+            <Link href="/{dashboard}/customers" className="btn btn-primary inline-block">
               View Customers
             </Link>
           </div>
@@ -45,14 +45,14 @@ export default function Home() {
             <p className="text-gray-600 dark:text-gray-300 mb-4">
               Create invoices, manage sales, and generate comprehensive reports.
             </p>
-            <Link href="/dashboard/reports" className="btn btn-primary inline-block">
+            <Link href="/{dashboard}/reports" className="btn btn-primary inline-block">
               View Reports
             </Link>
           </div>
         </div>
 
         <div className="text-center">
-          <Link href="/dashboard" className="btn btn-secondary inline-block">
+          <Link href="/{dashboard}" className="btn btn-secondary inline-block">
             Go to Dashboard
           </Link>
         </div>
