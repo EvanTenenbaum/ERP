@@ -15,7 +15,7 @@ The Multi-Tenant ERP System is a comprehensive solution for hemp flower wholesal
 
 ## Current Implementation Status
 
-As of April 3, 2025, the ERP system has been fully implemented with all core feature sets:
+As of April 4, 2025, the ERP system has the following implementation status:
 
 1. **Customer Management**
    - Customer profile creation and management
@@ -24,15 +24,19 @@ As of April 3, 2025, the ERP system has been fully implemented with all core fea
    - Payment pattern monitoring
    - Customer segmentation and categorization
    - Custom fields for customer-specific requirements
+   - **FIXED**: Add New Customer functionality now working properly
+   - **ADDED**: Dummy customer data for testing
 
 2. **Inventory Management**
    - Product catalog with detailed information
    - Multi-location inventory tracking
    - Product images and visual representation
-   - Stock level monitoring and alerts
+   - Stock level monitoring
    - Inventory valuation
    - Batch/lot tracking for hemp flower products
    - Product categorization and tagging
+   - **FIXED**: Manage Locations page now properly implemented
+   - **ADDED**: Dummy inventory data for testing
 
 3. **Sales Management**
    - Invoice creation and management
@@ -42,6 +46,7 @@ As of April 3, 2025, the ERP system has been fully implemented with all core fea
    - Discount and promotion handling
    - Sales pipeline visualization
    - Commission tracking
+   - **ADDED**: Dummy sales data for testing
 
 4. **Vendor Management**
    - Vendor profile creation and management
@@ -68,10 +73,10 @@ As of April 3, 2025, the ERP system has been fully implemented with all core fea
 
 7. **User Interface & Experience**
    - Responsive, mobile-friendly design
-   - Dark/light mode support
    - Dashboard with key performance indicators
    - Intuitive navigation
    - Role-based access control
+   - **ADDED**: Data loader component for populating dummy data
 
 8. **Technical Features**
    - Next.js 14.2.26 framework
@@ -80,6 +85,7 @@ As of April 3, 2025, the ERP system has been fully implemented with all core fea
    - ESLint code quality enforcement
    - Component-based architecture
    - Modular design for extensibility
+   - **FIXED**: Import path issues in dashboard components
 
 ## Project Structure
 
@@ -91,18 +97,27 @@ As of April 3, 2025, the ERP system has been fully implemented with all core fea
 │   ├── page.js                  # Home page component
 │   └── dashboard/               # Dashboard directory
 │       ├── page.js              # Main dashboard with integrated metrics
+│       ├── layout.js            # Dashboard layout with AppProvider
 │       ├── customers/           # Customer management module
 │       │   ├── page.js          # Customer listing page
+│       │   ├── new/             # New customer creation
+│       │   │   └── page.js      # Add customer page
 │       │   └── [id]/            # Dynamic route for customer details
 │       │       └── page.js      # Customer details page
 │       ├── inventory/           # Inventory management module
 │       │   ├── page.js          # Inventory listing page
+│       │   ├── add/             # Add inventory item
+│       │   │   └── page.js      # Add product page
+│       │   ├── locations/       # Manage inventory locations
+│       │   │   └── page.js      # Locations management page
 │       │   └── [id]/            # Dynamic route for product details
 │       │       └── page.js      # Product details page
 │       ├── reports/             # Reporting module
 │       │   └── page.js          # Reports page with multiple report types
 │       ├── sales/               # Sales management module
 │       │   ├── page.js          # Sales listing page
+│       │   ├── new/             # New sale creation
+│       │   │   └── page.js      # Create sale page
 │       │   └── [id]/            # Dynamic route for sale details
 │       │       └── page.js      # Sale details page
 │       └── vendors/             # Vendor management module
@@ -110,13 +125,21 @@ As of April 3, 2025, the ERP system has been fully implemented with all core fea
 │           └── [id]/            # Dynamic route for vendor details
 │               └── page.js      # Vendor details page
 ├── components/                  # Reusable components
+│   ├── DataLoader.jsx           # Component for loading dummy data
 │   ├── forms/                   # Form components
 │   │   ├── CustomerForm.js      # Customer form component
 │   │   ├── InventoryForm.js     # Inventory form component
+│   │   ├── ReportExport.js      # Report export component
+│   │   ├── ReportViewer.js      # Report viewer component
 │   │   ├── SalesForm.js         # Sales form component
 │   │   └── VendorForm.js        # Vendor form component
 │   └── ui/                      # UI components
 │       └── Button.js            # Button component
+├── dummy-data/                  # Dummy data for testing
+│   ├── customer-data.js         # Customer dummy data
+│   ├── data-loader.js           # Data loader utility
+│   ├── inventory-data.js        # Inventory dummy data
+│   └── sales-data.js            # Sales dummy data
 ├── lib/                         # Library code and utilities
 │   ├── api/                     # API utilities
 │   │   ├── customers.js         # Customer API utilities
@@ -155,6 +178,7 @@ The ERP system follows a modular architecture with clear separation of concerns:
    - Form components for data entry
    - UI components for visual elements
    - Page components in the `app/` directory
+   - DataLoader component for populating test data
 
 2. **Business Logic Layer**: Hooks and context in the `lib/hooks/` and `lib/context/` directories
    - React hooks for domain-specific logic
@@ -170,6 +194,7 @@ The ERP system follows a modular architecture with clear separation of concerns:
    - Database connection and configuration
    - Schema definitions
    - Query utilities
+   - In-memory database with localStorage persistence
 
 ## Integration Points
 
@@ -179,6 +204,7 @@ The system is fully integrated with the following key integration points:
    - Provides shared state and functionality across the application
    - Integrates all individual hooks (customers, inventory, sales, vendors, reports)
    - Implements cross-module functionality
+   - Now properly wrapped around dashboard components via dashboard/layout.js
 
 2. **Dashboard Integration**
    - Main dashboard displays data from all modules
@@ -207,21 +233,41 @@ The ERP system includes several features specific to the hemp flower wholesale b
    - Categories for hemp products (indoor, outdoor, light dep, concentrate, vape, other)
    - Strain type classification (indica, sativa, hybrid)
    - Batch/lot tracking for regulatory compliance
+   - SKUs include vendor codes for easy identification
 
 2. **Multi-Location Inventory**
    - Tracking inventory across multiple physical locations
    - Transfer management between locations
    - Location-specific reporting
+   - No reorder points needed as per industry requirements
 
 3. **Vendor Coding System**
    - Unique codes for all vendors
    - Vendor code included in product SKUs
    - Performance tracking metrics specific to hemp suppliers
+   - Financial tracking for each vendor
 
-4. **Customer Segmentation**
+4. **Customer Management**
    - Segmentation based on purchase history and payment patterns
    - Credit recommendations based on customer behavior
    - Custom fields for industry-specific customer requirements
+   - Financial tracking for each customer
+   - Smart credit recommendations balancing creditworthiness with revenue potential
+
+5. **Payment Tracking**
+   - Track payments to vendors and from customers
+   - Apply payments to specific open invoices
+   - Easy tracking of payment status for all invoices
+
+6. **Inventory Filtering**
+   - Filter inventory by price range
+   - Filter by category (indoor, outdoor, light dep, concentrate, vape, other)
+   - Filter by strain type (indica, sativa, hybrid)
+
+7. **Product Images**
+   - Ability to take and store product images
+   - Images remain associated with specific SKUs
+   - Visual representation in inventory listings
 
 ## Routing and Navigation
 
@@ -250,173 +296,126 @@ The application uses form components for data entry and management:
 - `InventoryForm.js`: Form for adding and editing inventory items
 - `SalesForm.js`: Form for creating and editing sales
 - `VendorForm.js`: Form for adding and editing vendor information
+- `ReportExport.js`: Component for exporting reports
+- `ReportViewer.js`: Component for viewing reports
 
 ### UI Components
 
 The application includes reusable UI components:
 
 - `Button.js`: A customizable button component with various styles and options
+- `DataLoader.jsx`: Component for loading dummy data into the application
 
 ## Import Paths
 
 When importing components, be careful with the relative paths. The correct import paths for components are:
 
 ```jsx
-// For importing UI components from form components
-import Button from '../ui/Button';
-
-// For importing UI components from pages
+// For importing UI components from dashboard pages
 import Button from '../../components/ui/Button';
 
-// For importing hooks
-import { useCustomers } from '../../../lib/hooks/useCustomers';
+// For importing hooks from dashboard pages
+import { useCustomers } from '../../lib/hooks/useCustomers';
 
-// For importing context
-import { useApp } from '../../../lib/context/AppContext';
+// For importing context from dashboard pages
+import { useApp } from '../../lib/context/AppContext';
 ```
 
-## Industry-Specific Requirements
+Note that the import paths were recently fixed to ensure proper module resolution.
 
-The ERP system is designed for hemp flower wholesale brokerage businesses with specific industry requirements. These requirements are documented in detail in the [INDUSTRY_REQUIREMENTS.md](./INDUSTRY_REQUIREMENTS.md) file, which covers:
+## Recent Changes and Fixes
 
-- Business scale and operations
-- Inventory management with multi-location tracking
-- Product categorization and images
-- Customer and vendor coding systems
-- Credit management
-- Payment tracking
-- Invoice generation
-- Reporting and metrics
-- User interface requirements
+As of April 4, 2025, the following changes and fixes have been implemented:
+
+1. **Fixed Features**:
+   - Fixed "Manage Locations" page that was previously showing a "Not Found" error
+   - Fixed "Add New Customer" form that was previously showing a JavaScript error
+   - Fixed import paths in dashboard components to properly resolve modules
+   - Fixed hook exports to use named exports instead of default exports
+
+2. **Added Features**:
+   - Added comprehensive dummy data for inventory, customers, and sales
+   - Added DataLoader component for populating the app with test data
+   - Added proper AppProvider wrapper in dashboard layout
+
+3. **Repository Changes**:
+   - Cleaned up repository to exclude node_modules directory
+   - Added proper .gitignore file
+   - Organized project structure for better maintainability
+
+## Getting Started for Developers
+
+To continue development on this project:
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/EvanTenenbaum/ERP.git
+   cd ERP
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Run the development server**:
+   ```bash
+   npm run dev
+   ```
+
+4. **Load dummy data**:
+   - Navigate to the dashboard
+   - Click the "Load Dummy Data" button in the bottom-right corner
+   - Refresh the page to see the populated data
+
+5. **Access key features**:
+   - Manage inventory locations: `/dashboard/inventory/locations`
+   - Add new customer: `/dashboard/customers/new`
+   - Add new product: `/dashboard/inventory/add`
+   - Create new sale: `/dashboard/sales/new`
+
+## Next Steps
+
+The following enhancements are planned for future development:
+
+1. **UI Improvements**:
+   - Implement a more modern and consistent design system
+   - Add data visualization for key metrics
+   - Improve mobile responsiveness
+
+2. **Feature Enhancements**:
+   - Implement advanced filtering for inventory
+   - Add batch operations for inventory management
+   - Enhance reporting capabilities with more visualization options
+
+3. **Technical Improvements**:
+   - Implement proper backend database integration
+   - Add authentication and authorization
+   - Improve error handling and validation
+
+## Troubleshooting
+
+If you encounter issues with the application:
+
+1. **Import Path Errors**:
+   - Ensure you're using the correct relative paths as shown in the Import Paths section
+   - Remember that dashboard components need to import from the root level (../../)
+
+2. **Component Rendering Issues**:
+   - Verify that the AppProvider is properly wrapping components that use the useApp hook
+   - Check for null or undefined values in component props
+
+3. **Data Not Showing**:
+   - Use the DataLoader component to populate the app with dummy data
+   - Check browser console for any JavaScript errors
+   - Verify localStorage access if data isn't persisting
 
 ## Deployment
 
-The application is deployed using Vercel through GitHub integration. The deployment process includes:
+The application is deployed on Vercel. To deploy changes:
 
-1. **GitHub Integration**
-   - Automatic deployments from the main branch
-   - Preview deployments for pull requests
-   - Environment variable management through Vercel
+1. Push changes to the GitHub repository
+2. Vercel will automatically deploy the changes
+3. Ensure environment variables are properly set in the Vercel dashboard
 
-2. **Environment Variables**
-   - Database connection strings
-   - API keys and secrets
-   - Feature flags
-
-3. **CI/CD Pipeline**
-   - Automated testing before deployment
-   - Code quality checks with ESLint
-   - Build optimization
-
-## Instructions for Future Tasks
-
-### Updating BREADCRUMBS.md
-
-For all future tasks related to this ERP project, follow these steps:
-
-1. **Always read BREADCRUMBS.md first** to understand the project structure and recent changes
-2. **Update BREADCRUMBS.md after completing any task** that:
-   - Changes the project structure
-   - Modifies routing or navigation
-   - Adds new components or features
-   - Fixes significant issues
-3. **Document your changes** in the appropriate section of BREADCRUMBS.md
-4. **Add a new section** if your changes don't fit into existing sections
-5. **Update the "Recent Changes" section** with a brief description of your changes and the date
-
-### Recent Changes Section
-
-Add a new entry to this section whenever you make significant changes to the project:
-
-#### Recent Changes
-
-- **April 3, 2025**: Implemented all core feature sets (customer, inventory, sales, vendor, reporting)
-- **April 3, 2025**: Integrated all components with global context provider (AppContext.js)
-- **April 3, 2025**: Implemented comprehensive dashboard with data from all modules
-- **April 3, 2025**: Deployed application to Vercel with GitHub integration
-- **April 3, 2025**: Updated BREADCRUMBS.md with current implementation status and architecture overview
-- **April 3, 2025**: Restructured app directory to eliminate route groups with curly braces, fixing navigation issues
-- **April 3, 2025**: Created INDUSTRY_REQUIREMENTS.md documenting hemp flower wholesale brokerage specific requirements
-- **April 3, 2025**: Updated navigation links to use paths with dashboard prefix
-- **April 3, 2025**: Created BREADCRUMBS.md file with comprehensive project documentation
-
-### Directory Structure Best Practices
-
-When working with the Next.js app directory:
-
-1. **Use standard directories**: Avoid using route groups with curly braces to prevent navigation issues
-2. **Use consistent naming**: Follow the established naming conventions for directories and files
-3. **Maintain proper nesting**: Keep related routes properly nested under their parent directories
-4. **Be consistent with imports**: Pay attention to relative paths when importing components
-
-### Component Development
-
-When developing new components:
-
-1. **Follow existing patterns**: Use the same structure and naming conventions as existing components
-2. **Place components in appropriate directories**: UI components in `components/ui`, form components in `components/forms`
-3. **Use proper import paths**: Be careful with relative paths when importing components
-4. **Document component props**: Include JSDoc comments for component props
-
-## Common Issues and Solutions
-
-### Navigation Issues
-
-If links are not working correctly:
-
-1. **Check link paths**: Ensure they include the correct directory structure (e.g., `/dashboard/inventory`)
-2. **Verify directory structure**: Confirm directories are using standard naming without curly braces
-3. **Clear browser cache**: Sometimes cached pages can cause routing issues
-
-### Import Errors
-
-If you encounter import errors:
-
-1. **Check relative paths**: Ensure the path correctly reflects the component's location
-2. **Verify file exists**: Confirm the imported file exists at the specified path
-3. **Check for typos**: Ensure the component name and path are spelled correctly
-
-### Database Integration
-
-If you encounter database issues:
-
-1. **Check connection strings**: Verify the database connection strings in environment variables
-2. **Verify schema**: Ensure the database schema matches the expected structure
-3. **Check error logs**: Database errors are logged in the console and server logs
-
-## Pending Features and Known Issues
-
-### Pending Features
-
-1. **Advanced User Management**
-   - User roles and permissions
-   - User activity logging
-   - Multi-factor authentication
-
-2. **Mobile Application**
-   - Native mobile app for field operations
-   - Offline capability
-   - Barcode/QR code scanning
-
-3. **Advanced Analytics**
-   - Predictive analytics for inventory management
-   - Customer behavior prediction
-   - Market trend analysis
-
-### Known Issues
-
-1. **Performance Optimization**
-   - Large datasets may cause performance issues in reporting
-   - Solution: Implement pagination and data chunking
-
-2. **Browser Compatibility**
-   - Some features may not work in older browsers
-   - Solution: Add polyfills and fallbacks
-
-3. **Image Handling**
-   - Large product images may cause storage issues
-   - Solution: Implement image compression and CDN integration
-
-## Conclusion
-
-This BREADCRUMBS.md file serves as a comprehensive guide to the Multi-Tenant ERP System project. It reflects the current state of the project as of April 3, 2025, with all core feature sets implemented and integrated. It should be updated regularly to provide guidance for future development tasks.
+Current deployment URL: https://erp-git-main-evan-tenenbaums-projects.vercel.app
