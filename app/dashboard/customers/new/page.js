@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useApp } from '../../../lib/context/AppContext';
+import { useApp } from '../../../../lib/context/AppContext';
 
 export default function NewCustomerPage() {
   const router = useRouter();
@@ -64,7 +64,7 @@ export default function NewCustomerPage() {
     
     try {
       // Import database dynamically to avoid SSR issues
-      const db = (await import('../../../lib/database')).default;
+      const db = (await import('../../../../lib/database')).default;
       
       // Ensure creditLimit is a number
       const customerData = {

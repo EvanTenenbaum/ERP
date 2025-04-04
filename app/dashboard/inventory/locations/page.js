@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useApp } from '../../../lib/context/AppContext';
+import { useApp } from '../../../../lib/context/AppContext';
 import { RefreshCw, Plus, Trash, Edit } from 'lucide-react';
 
 export default function LocationsPage() {
@@ -30,7 +30,7 @@ export default function LocationsPage() {
       try {
         setLoading(true);
         // Import database dynamically to avoid SSR issues
-        const db = (await import('../../../lib/database')).default;
+        const db = (await import('../../../../lib/database')).default;
         const fetchedLocations = await db.locations.findAll();
         setLocations(fetchedLocations);
       } catch (error) {
@@ -87,7 +87,7 @@ export default function LocationsPage() {
     
     try {
       // Import database dynamically to avoid SSR issues
-      const db = (await import('../../../lib/database')).default;
+      const db = (await import('../../../../lib/database')).default;
       
       const createdLocation = await db.locations.create(newLocation);
       
@@ -116,7 +116,7 @@ export default function LocationsPage() {
     
     try {
       // Import database dynamically to avoid SSR issues
-      const db = (await import('../../../lib/database')).default;
+      const db = (await import('../../../../lib/database')).default;
       
       const updatedLocation = await db.locations.update(editingLocation.id, editingLocation);
       
@@ -136,7 +136,7 @@ export default function LocationsPage() {
     
     try {
       // Import database dynamically to avoid SSR issues
-      const db = (await import('../../../lib/database')).default;
+      const db = (await import('../../../../lib/database')).default;
       
       await db.locations.delete(id);
       
@@ -152,7 +152,7 @@ export default function LocationsPage() {
     try {
       setLoading(true);
       // Import database dynamically to avoid SSR issues
-      const db = (await import('../../../lib/database')).default;
+      const db = (await import('../../../../lib/database')).default;
       const fetchedLocations = await db.locations.findAll();
       setLocations(fetchedLocations);
       showNotification('Locations refreshed', 'success');
