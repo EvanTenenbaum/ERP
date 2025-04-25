@@ -1,0 +1,344 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Multi-tenant support
+model Tenant {
+  id        String   @id @default(uuid())
+  name      String
+  plan      String   @default("basic") // e.g., 'basic', 'enterprise'
+  features  Json? // Enabled features for this tenant
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  users             User[]
+  customers         Customer[]
+  vendors           Vendor[]
+  products          Product[]
+  locations         Location[]
+  sales             Sale[]
+  purchaseOrders    PurchaseOrder[]
+  inventoryRecords  InventoryRecord[]
+  payments          Payment[]
+  reportDefinitions ReportDefinition[]
+  dashboards        Dashboard[]
+}
+
+// User authentication and authorization
+model User {
+  id           String   @id @default(uuid())
+  tenantId     String
+  name         String
+  email        String
+  role         String   @default("user") // 'admin', 'manager', 'user'
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relationships
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@unique([email, tenantId])
+  @@index([tenantId])
+}
+
+// Customer information
+model Customer {
+  id           String   @id @default(uuid())
+  tenantId     String
+  code         String // Unique customer code (e.g., 'CUST001')
+  name         String
+  contactName  String?
+  email        String?
+  phone        String?
+  address      String?
+  creditLimit  Decimal? @db.Decimal(10, 2)
+  paymentTerms String? // e.g., 'Net 30'
+  notes        String?  @db.Text
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relationships
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  sales  Sale[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId])
+}
+
+// Vendor information
+model Vendor {
+  id           String   @id @default(uuid())
+  tenantId     String
+  code         String // Unique vendor code (e.g., 'VEND001')
+  name         String
+  contactName  String?
+  email        String?
+  phone        String?
+  address      String?
+  paymentTerms String? // e.g., 'Net 30'
+  notes        String?  @db.Text
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relationships
+  tenant         Tenant          @relation(fields: [tenantId], references: [id])
+  products       Product[]
+  purchaseOrders PurchaseOrder[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId])
+}
+
+// Product information
+model Product {
+  id             String   @id @default(uuid())
+  tenantId       String
+  name           String
+  vendorId       String?
+  vendorCode     String?
+  category       String? // indoor, outdoor, light dep, concentrate, vape, other
+  strainType     String? // indica, sativa, hybrid
+  description    String?  @db.Text
+  wholesalePrice Decimal? @db.Decimal(10, 2)
+  retailPrice    Decimal? @db.Decimal(10, 2)
+  imageUrls      Json? // Array of image URLs
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relationships
+  tenant           Tenant            @relation(fields: [tenantId], references: [id])
+  vendor           Vendor?           @relation(fields: [vendorId], references: [id])
+  inventoryImages  InventoryImage[]
+  inventoryRecords InventoryRecord[]
+  saleItems        SaleItem[]
+  poItems          POItem[]
+
+  @@index([tenantId])
+  @@index([vendorId])
+  @@index([category])
+  @@index([strainType])
+}
+
+// Inventory location information
+model Location {
+  id        String   @id @default(uuid())
+  tenantId  String
+  name      String
+  address   String?
+  city      String?
+  state     String?
+  zipCode   String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  tenant           Tenant            @relation(fields: [tenantId], references: [id])
+  inventoryRecords InventoryRecord[]
+
+  @@index([tenantId])
+}
+
+// Inventory records by product and location
+model InventoryRecord {
+  id          String   @id @default(uuid())
+  tenantId    String
+  productId   String
+  locationId  String
+  quantity    Decimal  @db.Decimal(10, 2)
+  batchNumber String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationships
+  tenant   Tenant   @relation(fields: [tenantId], references: [id])
+  product  Product  @relation(fields: [productId], references: [id])
+  location Location @relation(fields: [locationId], references: [id])
+
+  @@unique([productId, locationId, batchNumber])
+  @@index([tenantId])
+  @@index([productId])
+  @@index([locationId])
+}
+
+// Product images
+model InventoryImage {
+  id        String   @id @default(uuid())
+  productId String
+  imageUrl  String
+  isPrimary Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([productId])
+}
+
+// Sales information
+model Sale {
+  id            String    @id @default(uuid())
+  tenantId      String
+  customerId    String
+  saleNumber    String // Unique sale number
+  saleDate      DateTime
+  total         Decimal   @db.Decimal(10, 2)
+  status        String    @default("pending") // 'pending', 'completed'
+  paymentStatus String    @default("unpaid") // 'unpaid', 'partial', 'paid'
+  paymentDate   DateTime?
+  notes         String?   @db.Text
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relationships
+  tenant    Tenant     @relation(fields: [tenantId], references: [id])
+  customer  Customer   @relation(fields: [customerId], references: [id])
+  saleItems SaleItem[]
+  payments  Payment[]
+
+  @@unique([tenantId, saleNumber])
+  @@index([tenantId])
+  @@index([customerId])
+  @@index([saleDate])
+  @@index([paymentStatus])
+}
+
+// Individual items in a sale
+model SaleItem {
+  id        String   @id @default(uuid())
+  saleId    String
+  productId String
+  quantity  Decimal  @db.Decimal(10, 2)
+  price     Decimal  @db.Decimal(10, 2)
+  total     Decimal  @db.Decimal(10, 2)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  sale    Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([saleId])
+  @@index([productId])
+}
+
+// Purchase order information
+model PurchaseOrder {
+  id           String    @id @default(uuid())
+  tenantId     String
+  vendorId     String
+  poNumber     String // Unique purchase order number
+  orderDate    DateTime
+  expectedDate DateTime?
+  status       String    @default("pending") // 'pending', 'received'
+  total        Decimal   @db.Decimal(10, 2)
+  notes        String?   @db.Text
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // Relationships
+  tenant   Tenant    @relation(fields: [tenantId], references: [id])
+  vendor   Vendor    @relation(fields: [vendorId], references: [id])
+  poItems  POItem[]
+  payments Payment[]
+
+  @@unique([tenantId, poNumber])
+  @@index([tenantId])
+  @@index([vendorId])
+  @@index([orderDate])
+  @@index([status])
+}
+
+// Individual items in a purchase order
+model POItem {
+  id        String   @id @default(uuid())
+  poId      String
+  productId String
+  quantity  Decimal  @db.Decimal(10, 2)
+  price     Decimal  @db.Decimal(10, 2)
+  total     Decimal  @db.Decimal(10, 2)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  purchaseOrder PurchaseOrder @relation(fields: [poId], references: [id], onDelete: Cascade)
+  product       Product       @relation(fields: [productId], references: [id])
+
+  @@index([poId])
+  @@index([productId])
+}
+
+// Payments for sales and purchase orders
+model Payment {
+  id            String   @id @default(uuid())
+  tenantId      String
+  entityType    String // 'sale' or 'purchaseOrder'
+  entityId      String
+  amount        Decimal  @db.Decimal(10, 2)
+  paymentDate   DateTime
+  paymentMethod String?
+  reference     String?
+  notes         String?  @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relationships
+  tenant        Tenant         @relation(fields: [tenantId], references: [id])
+  sale          Sale?          @relation(fields: [entityId], references: [id], map: "Payment_saleId_fkey")
+  purchaseOrder PurchaseOrder? @relation(fields: [entityId], references: [id], map: "Payment_purchaseOrderId_fkey")
+
+  @@index([tenantId])
+  @@index([entityType, entityId])
+  @@index([paymentDate])
+}
+
+// Report Definitions
+model ReportDefinition {
+  id          String   @id @default(uuid())
+  tenantId    String
+  name        String
+  description String?
+  type        String // 'sales', 'inventory', 'financial', etc.
+  config      Json
+  isSystem    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationships
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+  @@index([type])
+}
+
+// Dashboard Definitions
+model Dashboard {
+  id          String   @id @default(uuid())
+  tenantId    String
+  name        String
+  description String?
+  layout      Json
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationships
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+}

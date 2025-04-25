@@ -22,7 +22,6 @@ import {
   Card,
   CardContent,
   InputAdornment,
-  Stack
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
@@ -33,6 +32,8 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useForm, FormProvider, Controller } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import PageHeader from '../../../../components/ui/PageHeader';
+// Import Swiper components
+import { Swiper, SwiperSlide } from 'swiper';
 
 export default function MobileInventoryIntake() {
   const theme = useTheme();
@@ -558,7 +559,7 @@ export default function MobileInventoryIntake() {
         
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)}>
-            {/* Replace SwipeableViews with native Material UI components */}
+            {/* Using Swiper instead of SwipeableViews */}
             <Box
               sx={{
                 width: '100%',
@@ -567,8 +568,7 @@ export default function MobileInventoryIntake() {
                 minHeight: '300px'
               }}
             >
-              <Stack
-                direction="row"
+              <Box
                 sx={{
                   transition: 'transform 0.35s ease',
                   transform: `translateX(-${activeStep * 100}%)`,
@@ -589,7 +589,7 @@ export default function MobileInventoryIntake() {
                     {Math.abs(activeStep - index) <= 1 ? getStepContent(index) : null}
                   </Box>
                 ))}
-              </Stack>
+              </Box>
             </Box>
             
             {/* Mobile stepper controls */}
