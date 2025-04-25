@@ -1,36 +1,45 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   Box, 
   Typography, 
   Grid, 
+  Card as MuiCard, 
+  CardContent, 
+  CardActionArea,
+  Fab,
+  IconButton,
+  useMediaQuery,
+  Chip,
   TextField,
   InputAdornment,
-  IconButton,
-  Avatar,
-  Chip,
   Divider,
   List,
   ListItem,
   ListItemText,
-  ListItemAvatar
+  ListItemAvatar,
+  Avatar,
+  Button,
+  Paper,
+  ToggleButtonGroup,
+  ToggleButton
 } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
+import { useTheme } from '@mui/material/styles';
 import AddIcon from '@mui/icons-material/Add';
-import PersonIcon from '@mui/icons-material/Person';
-import BusinessIcon from '@mui/icons-material/Business';
-import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
-import EmailIcon from '@mui/icons-material/Email';
-import Card from '../../../components/ui/Card';
-import Button from '../../../components/ui/Button';
+import SearchIcon from '@mui/icons-material/Search';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import PageHeader from '../../../components/ui/PageHeader';
-import Table from '../../../components/ui/Table';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
-export default function CustomersPage() {
-  const [searchQuery, setSearchQuery] = useState('');
-
+export default function MobileCustomersPage() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const [viewMode, setViewMode] = React.useState(isMobile ? 'list' : 'grid');
+  
   // Sample customers data
   const customersData = [
     { 
@@ -41,8 +50,9 @@ export default function CustomersPage() {
       phone: '(555) 123-4567', 
       location: 'Los Angeles, CA',
       status: 'Active',
-      creditLimit: '$50,000',
-      totalPurchases: '$124,500'
+      creditLimit: 50000,
+      totalPurchases: 124500,
+      avatar: 'G'
     },
     { 
       id: 'CUST002', 
@@ -52,8 +62,9 @@ export default function CustomersPage() {
       phone: '(555) 234-5678', 
       location: 'Denver, CO',
       status: 'Active',
-      creditLimit: '$35,000',
-      totalPurchases: '$87,200'
+      creditLimit: 35000,
+      totalPurchases: 87200,
+      avatar: 'H'
     },
     { 
       id: 'CUST003', 
@@ -63,8 +74,9 @@ export default function CustomersPage() {
       phone: '(555) 345-6789', 
       location: 'Portland, OR',
       status: 'Active',
-      creditLimit: '$25,000',
-      totalPurchases: '$62,800'
+      creditLimit: 25000,
+      totalPurchases: 62800,
+      avatar: 'N'
     },
     { 
       id: 'CUST004', 
@@ -74,8 +86,9 @@ export default function CustomersPage() {
       phone: '(555) 456-7890', 
       location: 'Seattle, WA',
       status: 'Inactive',
-      creditLimit: '$15,000',
-      totalPurchases: '$8,500'
+      creditLimit: 15000,
+      totalPurchases: 8500,
+      avatar: 'O'
     },
     { 
       id: 'CUST005', 
@@ -85,150 +98,255 @@ export default function CustomersPage() {
       phone: '(555) 567-8901', 
       location: 'Austin, TX',
       status: 'Active',
-      creditLimit: '$40,000',
-      totalPurchases: '$95,300'
+      creditLimit: 40000,
+      totalPurchases: 95300,
+      avatar: 'P'
     },
   ];
-
-  // Table columns
-  const columns = [
-    { id: 'id', label: 'Customer ID' },
-    { id: 'name', label: 'Business Name' },
-    { id: 'contact', label: 'Contact Person' },
-    { id: 'email', label: 'Email' },
-    { id: 'phone', label: 'Phone' },
-    { id: 'location', label: 'Location' },
-    { id: 'status', label: 'Status',
-      format: (value) => (
-        <Chip 
-          label={value} 
-          size="small" 
-          color={value === 'Active' ? 'success' : 'default'} 
-        />
-      )
-    },
-    { id: 'creditLimit', label: 'Credit Limit', align: 'right' },
-    { id: 'totalPurchases', label: 'Total Purchases', align: 'right' },
-  ];
-
+  
   // Filter data based on search query
   const filteredData = customersData.filter(item => 
     item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.contact.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.id.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
-  // Top customers for highlight section
-  const topCustomers = [...customersData]
-    .sort((a, b) => {
-      const aValue = parseFloat(a.totalPurchases.replace(/[^0-9.-]+/g, ''));
-      const bValue = parseFloat(b.totalPurchases.replace(/[^0-9.-]+/g, ''));
-      return bValue - aValue;
-    })
-    .slice(0, 3);
-
+  
+  // Handle view mode change
+  const handleViewModeChange = (event, newMode) => {
+    if (newMode !== null) {
+      setViewMode(newMode);
+    }
+  };
+  
+  // Format currency
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(value);
+  };
+  
   return (
-    <Box>
+    <Box sx={{ pb: isMobile ? 8 : 3 }}>
       <PageHeader 
-        title="Customer Management" 
-        description="Manage your wholesale customers and their information"
-        breadcrumbs={[
+        title="Customers"
+        description={isMobile ? undefined : "Manage your wholesale customers"}
+        breadcrumbs={!isMobile ? [
           { label: 'Dashboard', href: '/dashboard' },
           { label: 'Customers', href: '/dashboard/customers' },
-        ]}
-        actions={
-          <Button 
-            component={Link}
-            href="/dashboard/customers/new"
-            variant="contained" 
-            startIcon={<AddIcon />}
-          >
-            Add Customer
-          </Button>
-        }
+        ] : undefined}
       />
       
-      <Grid container spacing={3} sx={{ mb: 3 }}>
-        {topCustomers.map((customer, index) => (
-          <Grid item xs={12} md={4} key={index}>
-            <Card>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Avatar 
-                  sx={{ 
-                    bgcolor: index === 0 ? 'primary.main' : index === 1 ? 'secondary.main' : 'success.main',
-                    mr: 2
-                  }}
-                >
-                  {customer.name.charAt(0)}
-                </Avatar>
-                <Box>
-                  <Typography variant="h6">{customer.name}</Typography>
-                  <Typography variant="body2" color="text.secondary">{customer.id}</Typography>
-                </Box>
-              </Box>
-              
-              <Divider sx={{ my: 1.5 }} />
-              
-              <Grid container spacing={2}>
-                <Grid item xs={6}>
-                  <Typography variant="body2" color="text.secondary">Total Purchases</Typography>
-                  <Typography variant="h6">{customer.totalPurchases}</Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="body2" color="text.secondary">Credit Limit</Typography>
-                  <Typography variant="h6">{customer.creditLimit}</Typography>
-                </Grid>
-              </Grid>
-              
-              <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-                <Button 
-                  component={Link}
-                  href={`/dashboard/customers/${customer.id}`}
-                  variant="outlined" 
-                  size="small"
-                >
-                  View Profile
-                </Button>
-              </Box>
-            </Card>
+      {/* Search and view toggle section */}
+      <Box sx={{ mb: 2 }}>
+        <Grid container spacing={2} alignItems="center">
+          <Grid item xs={isMobile ? 12 : 8}>
+            <TextField
+              fullWidth
+              placeholder="Search customers..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+                sx: { 
+                  height: isMobile ? 56 : 'auto',
+                  borderRadius: 28,
+                  pl: 1,
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderRadius: 28,
+                  }
+                }
+              }}
+              variant="outlined"
+              size={isMobile ? "medium" : "small"}
+            />
           </Grid>
-        ))}
-      </Grid>
-      
-      <Card>
-        <Box sx={{ mb: 3 }}>
-          <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                placeholder="Search by name, contact, or ID"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon />
-                    </InputAdornment>
-                  ),
-                }}
+          
+          {!isMobile && (
+            <Grid item xs={4} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <ToggleButtonGroup
+                value={viewMode}
+                exclusive
+                onChange={handleViewModeChange}
+                aria-label="view mode"
                 size="small"
-              />
+              >
+                <ToggleButton value="grid" aria-label="grid view">
+                  Grid
+                </ToggleButton>
+                <ToggleButton value="list" aria-label="list view">
+                  List
+                </ToggleButton>
+              </ToggleButtonGroup>
             </Grid>
-            <Grid item xs={12} md={6} sx={{ display: 'flex', justifyContent: { xs: 'flex-start', md: 'flex-end' } }}>
-              <Button variant="outlined">
-                Export
-              </Button>
+          )}
+        </Grid>
+      </Box>
+      
+      {/* Mobile customer list */}
+      {(isMobile || viewMode === 'list') ? (
+        <List sx={{ p: 0 }}>
+          {filteredData.map((customer) => (
+            <Paper 
+              key={customer.id} 
+              elevation={1}
+              sx={{ 
+                mb: 2, 
+                borderRadius: 2,
+                overflow: 'hidden'
+              }}
+            >
+              <CardActionArea 
+                onClick={() => router.push(`/dashboard/customers/${customer.id}`)}
+              >
+                <ListItem sx={{ px: 2, py: 1.5 }}>
+                  <ListItemAvatar>
+                    <Avatar 
+                      sx={{ 
+                        bgcolor: customer.status === 'Active' ? 'primary.main' : 'text.disabled',
+                        width: 50,
+                        height: 50,
+                        fontSize: '1.5rem'
+                      }}
+                    >
+                      {customer.avatar}
+                    </Avatar>
+                  </ListItemAvatar>
+                  
+                  <ListItemText
+                    primary={
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography variant="subtitle1" component="div" fontWeight="medium" noWrap>
+                          {customer.name}
+                        </Typography>
+                        <Chip 
+                          label={customer.status} 
+                          size="small" 
+                          color={customer.status === 'Active' ? 'success' : 'default'} 
+                          sx={{ ml: 1 }}
+                        />
+                      </Box>
+                    }
+                    secondary={
+                      <>
+                        <Typography variant="body2" color="text.secondary" noWrap>
+                          {customer.contact} • {customer.location}
+                        </Typography>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
+                          <Typography variant="body2" color="text.secondary">
+                            Credit: {formatCurrency(customer.creditLimit)}
+                          </Typography>
+                          <Typography variant="body2" fontWeight="medium" color="primary">
+                            {formatCurrency(customer.totalPurchases)}
+                          </Typography>
+                        </Box>
+                      </>
+                    }
+                  />
+                </ListItem>
+              </CardActionArea>
+            </Paper>
+          ))}
+        </List>
+      ) : (
+        // Desktop grid view
+        <Grid container spacing={3}>
+          {filteredData.map((customer) => (
+            <Grid item xs={12} sm={6} md={4} key={customer.id}>
+              <MuiCard sx={{ height: '100%', borderRadius: 2 }}>
+                <CardActionArea onClick={() => router.push(`/dashboard/customers/${customer.id}`)}>
+                  <CardContent>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                      <Avatar 
+                        sx={{ 
+                          bgcolor: customer.status === 'Active' ? 'primary.main' : 'text.disabled',
+                          width: 60,
+                          height: 60,
+                          fontSize: '1.75rem',
+                          mr: 2
+                        }}
+                      >
+                        {customer.avatar}
+                      </Avatar>
+                      
+                      <Box sx={{ flex: 1 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <Typography variant="h6" component="div">
+                            {customer.name}
+                          </Typography>
+                          <Chip 
+                            label={customer.status} 
+                            size="small" 
+                            color={customer.status === 'Active' ? 'success' : 'default'} 
+                          />
+                        </Box>
+                        <Typography variant="body2" color="text.secondary">
+                          {customer.id}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    
+                    <Divider sx={{ my: 1.5 }} />
+                    
+                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                      <strong>Contact:</strong> {customer.contact}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                      <strong>Location:</strong> {customer.location}
+                    </Typography>
+                    
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">Credit Limit</Typography>
+                        <Typography variant="h6">{formatCurrency(customer.creditLimit)}</Typography>
+                      </Box>
+                      <Box sx={{ textAlign: 'right' }}>
+                        <Typography variant="body2" color="text.secondary">Total Purchases</Typography>
+                        <Typography variant="h6" color="primary">{formatCurrency(customer.totalPurchases)}</Typography>
+                      </Box>
+                    </Box>
+                  </CardContent>
+                </CardActionArea>
+              </MuiCard>
             </Grid>
-          </Grid>
-        </Box>
-        
-        <Table 
-          columns={columns} 
-          data={filteredData}
-          pagination={true}
-          rowsPerPage={10}
-        />
-      </Card>
+          ))}
+        </Grid>
+      )}
+      
+      {/* Floating action button for adding new customer (mobile only) */}
+      {isMobile && (
+        <Fab
+          color="primary"
+          aria-label="add"
+          sx={{
+            position: 'fixed',
+            bottom: 80, // Position above bottom navigation
+            right: 16,
+            zIndex: 999
+          }}
+          onClick={() => router.push('/dashboard/customers/new')}
+        >
+          <PersonAddIcon />
+        </Fab>
+      )}
+      
+      {/* Desktop add button */}
+      {!isMobile && (
+        <Button
+          variant="contained"
+          startIcon={<PersonAddIcon />}
+          sx={{ mt: 3 }}
+          onClick={() => router.push('/dashboard/customers/new')}
+        >
+          Add Customer
+        </Button>
+      )}
     </Box>
   );
 }
