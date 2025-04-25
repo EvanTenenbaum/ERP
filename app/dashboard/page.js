@@ -1,11 +1,31 @@
 'use client';
 
 import React from 'react';
-import PageHeader from '../../components/ui/PageHeader';
+import { 
+  Box, 
+  Typography, 
+  Grid, 
+  Paper, 
+  Divider,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+  Chip
+} from '@mui/material';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
-import Badge from '../../components/ui/Badge';
+import PageHeader from '../../components/ui/PageHeader';
+import Table from '../../components/ui/Table';
 import Link from 'next/link';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import InventoryIcon from '@mui/icons-material/Inventory';
+import PeopleIcon from '@mui/icons-material/People';
+import ReceiptIcon from '@mui/icons-material/Receipt';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import TrendingDownIcon from '@mui/icons-material/TrendingDown';
+import WarningIcon from '@mui/icons-material/Warning';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 export default function DashboardPage() {
   // Sample metrics data
@@ -24,148 +44,234 @@ export default function DashboardPage() {
     { id: 4, type: 'payment', action: 'Payment received', item: 'Invoice #5678 - Herbal Solutions', time: '2 days ago' },
   ];
 
+  // Sample inventory alerts
+  const inventoryAlerts = [
+    { id: 1, type: 'low_stock', product: 'OG Kush', units: 5, action: 'Restock' },
+    { id: 2, type: 'verification', product: 'Blue Dream (VEN003-BD-002)', action: 'Verify' },
+  ];
+
+  // Recent sales data for table
+  const recentSales = [
+    { id: 'S001', customer: 'Greenleaf Distributors', product: 'Purple Haze', quantity: 10, total: '$4,500', date: '2025-04-24' },
+    { id: 'S002', customer: 'Herbal Solutions', product: 'OG Kush', quantity: 5, total: '$2,250', date: '2025-04-23' },
+    { id: 'S003', customer: 'Natural Wellness', product: 'Blue Dream', quantity: 8, total: '$3,600', date: '2025-04-22' },
+    { id: 'S004', customer: 'Organic Remedies', product: 'Sour Diesel', quantity: 12, total: '$5,400', date: '2025-04-21' },
+  ];
+
+  // Table columns
+  const salesColumns = [
+    { id: 'id', label: 'Order ID' },
+    { id: 'customer', label: 'Customer' },
+    { id: 'product', label: 'Product' },
+    { id: 'quantity', label: 'Quantity', align: 'right' },
+    { id: 'total', label: 'Total', align: 'right' },
+    { id: 'date', label: 'Date' },
+  ];
+
   return (
-    <div>
+    <Box>
       <PageHeader 
         title="Dashboard" 
         description="Overview of your hemp flower wholesale business"
         actions={
           <>
-            <Button variant="outline" size="sm">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
+            <Button variant="outlined" size="small" startIcon={<DashboardIcon />}>
               Refresh
             </Button>
-            <Button variant="primary" size="sm">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
+            <Button variant="contained" size="small" startIcon={<ReceiptIcon />}>
               New Sale
             </Button>
           </>
         }
       />
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <Grid container spacing={3} sx={{ mb: 4 }}>
         {metrics.map((metric, index) => (
-          <Card key={index} className="h-full">
-            <h3 className="text-gray-500 text-sm font-medium">{metric.title}</h3>
-            <p className="text-2xl font-bold mt-2 mb-1">{metric.value}</p>
-            <p className={`text-sm flex items-center ${metric.changeType === 'positive' ? 'text-green-600' : 'text-red-600'}`}>
-              {metric.changeType === 'positive' ? (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                </svg>
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              )}
-              {metric.change} from last month
-            </p>
-          </Card>
+          <Grid item xs={12} sm={6} md={3} key={index}>
+            <Card>
+              <Typography variant="subtitle2" color="text.secondary">
+                {metric.title}
+              </Typography>
+              <Typography variant="h4" sx={{ my: 1 }}>
+                {metric.value}
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                {metric.changeType === 'positive' ? (
+                  <TrendingUpIcon color="success" fontSize="small" sx={{ mr: 0.5 }} />
+                ) : (
+                  <TrendingDownIcon color="error" fontSize="small" sx={{ mr: 0.5 }} />
+                )}
+                <Typography 
+                  variant="body2" 
+                  color={metric.changeType === 'positive' ? 'success.main' : 'error.main'}
+                >
+                  {metric.change} from last month
+                </Typography>
+              </Box>
+            </Card>
+          </Grid>
         ))}
-      </div>
+      </Grid>
       
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <Card title="Recent Activity" className="h-full">
-            <div className="space-y-4">
-              {recentActivities.map((activity) => (
-                <div key={activity.id} className="border-b border-gray-200 dark:border-gray-700 pb-3 last:border-0 last:pb-0">
-                  <div className="flex items-start">
-                    <div className="flex-shrink-0 mt-1">
-                      {activity.type === 'inventory' && (
-                        <Badge variant="primary" size="sm">Inventory</Badge>
-                      )}
-                      {activity.type === 'sale' && (
-                        <Badge variant="success" size="sm">Sale</Badge>
-                      )}
-                      {activity.type === 'customer' && (
-                        <Badge variant="info" size="sm">Customer</Badge>
-                      )}
-                      {activity.type === 'payment' && (
-                        <Badge variant="warning" size="sm">Payment</Badge>
-                      )}
-                    </div>
-                    <div className="ml-3">
-                      <p className="font-medium text-gray-900 dark:text-white">{activity.action}</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{activity.item}</p>
-                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{activity.time}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="mt-4 text-right">
-              <Button variant="link" size="sm">View All Activity</Button>
-            </div>
+      <Grid container spacing={3}>
+        <Grid item xs={12} lg={8}>
+          <Card title="Recent Sales">
+            <Table 
+              columns={salesColumns} 
+              data={recentSales}
+              pagination={false}
+            />
+            <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
+              <Button 
+                component={Link} 
+                href="/dashboard/sales" 
+                variant="text" 
+                size="small"
+              >
+                View All Sales
+              </Button>
+            </Box>
           </Card>
-        </div>
+        </Grid>
         
-        <div>
-          <Card title="Quick Actions" className="mb-6">
-            <div className="grid grid-cols-1 gap-3">
-              <Link href="/dashboard/inventory/add" className="w-full">
-                <Button className="w-full justify-start">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
+        <Grid item xs={12} lg={4}>
+          <Grid container spacing={3} direction="column">
+            <Grid item>
+              <Card title="Recent Activity">
+                <List disablePadding>
+                  {recentActivities.map((activity) => (
+                    <ListItem 
+                      key={activity.id} 
+                      divider={activity.id !== recentActivities.length}
+                      sx={{ px: 0 }}
+                    >
+                      <ListItemIcon sx={{ minWidth: 40 }}>
+                        {activity.type === 'inventory' && <InventoryIcon color="primary" />}
+                        {activity.type === 'sale' && <ReceiptIcon color="success" />}
+                        {activity.type === 'customer' && <PeopleIcon color="info" />}
+                        {activity.type === 'payment' && <DashboardIcon color="warning" />}
+                      </ListItemIcon>
+                      <ListItemText 
+                        primary={activity.action}
+                        secondary={
+                          <>
+                            <Typography variant="body2" component="span">
+                              {activity.item}
+                            </Typography>
+                            <Typography variant="caption" component="div" color="text.secondary">
+                              {activity.time}
+                            </Typography>
+                          </>
+                        }
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              </Card>
+            </Grid>
+            
+            <Grid item>
+              <Card title="Inventory Alerts">
+                <List disablePadding>
+                  {inventoryAlerts.map((alert, index) => (
+                    <ListItem 
+                      key={alert.id}
+                      divider={index !== inventoryAlerts.length - 1}
+                      sx={{ 
+                        px: 2, 
+                        py: 1.5, 
+                        backgroundColor: alert.type === 'low_stock' ? 'error.lighter' : 'warning.lighter',
+                        borderRadius: 1,
+                        mb: 1
+                      }}
+                    >
+                      <ListItemIcon sx={{ minWidth: 40 }}>
+                        {alert.type === 'low_stock' ? (
+                          <WarningIcon color="error" />
+                        ) : (
+                          <CheckCircleIcon color="warning" />
+                        )}
+                      </ListItemIcon>
+                      <ListItemText 
+                        primary={
+                          <Typography variant="body2" fontWeight="medium">
+                            {alert.type === 'low_stock' ? 'Low Stock' : 'Pending Verification'}
+                          </Typography>
+                        }
+                        secondary={
+                          alert.type === 'low_stock' ? 
+                            `${alert.product} (${alert.units} units)` : 
+                            alert.product
+                        }
+                      />
+                      <Button 
+                        variant="outlined" 
+                        size="small" 
+                        color={alert.type === 'low_stock' ? 'error' : 'warning'}
+                      >
+                        {alert.action}
+                      </Button>
+                    </ListItem>
+                  ))}
+                </List>
+              </Card>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid>
+      
+      <Grid container spacing={3} sx={{ mt: 2 }}>
+        <Grid item xs={12}>
+          <Card title="Quick Actions">
+            <Grid container spacing={2}>
+              <Grid item xs={6} sm={3}>
+                <Button 
+                  component={Link}
+                  href="/dashboard/inventory/add"
+                  variant="outlined"
+                  fullWidth
+                  startIcon={<InventoryIcon />}
+                >
                   Add Inventory
                 </Button>
-              </Link>
-              <Link href="/dashboard/customers/new" className="w-full">
-                <Button className="w-full justify-start">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                  </svg>
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <Button 
+                  component={Link}
+                  href="/dashboard/customers/new"
+                  variant="outlined"
+                  fullWidth
+                  startIcon={<PeopleIcon />}
+                >
                   Add Customer
                 </Button>
-              </Link>
-              <Link href="/dashboard/sales/new" className="w-full">
-                <Button className="w-full justify-start">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <Button 
+                  component={Link}
+                  href="/dashboard/sales/new"
+                  variant="outlined"
+                  fullWidth
+                  startIcon={<ReceiptIcon />}
+                >
                   Create Sale
                 </Button>
-              </Link>
-              <Link href="/dashboard/reports" className="w-full">
-                <Button className="w-full justify-start">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <Button 
+                  component={Link}
+                  href="/dashboard/reports"
+                  variant="outlined"
+                  fullWidth
+                  startIcon={<DashboardIcon />}
+                >
                   Generate Report
                 </Button>
-              </Link>
-            </div>
+              </Grid>
+            </Grid>
           </Card>
-          
-          <Card title="Inventory Alerts">
-            <div className="space-y-3">
-              <div className="p-3 bg-red-50 dark:bg-red-900/30 rounded-md">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="font-medium text-red-800 dark:text-red-300">Low stock: OG Kush</p>
-                    <p className="text-sm text-red-600 dark:text-red-400">5 units remaining</p>
-                  </div>
-                  <Button variant="outline" size="sm">Restock</Button>
-                </div>
-              </div>
-              <div className="p-3 bg-yellow-50 dark:bg-yellow-900/30 rounded-md">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="font-medium text-yellow-800 dark:text-yellow-300">Pending verification</p>
-                    <p className="text-sm text-yellow-600 dark:text-yellow-400">Blue Dream (VEN003-BD-002)</p>
-                  </div>
-                  <Button variant="outline" size="sm">Verify</Button>
-                </div>
-              </div>
-            </div>
-          </Card>
-        </div>
-      </div>
-    </div>
+        </Grid>
+      </Grid>
+    </Box>
   );
 }

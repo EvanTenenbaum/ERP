@@ -1,139 +1,211 @@
-"use client";
+'use client';
 
 import React, { useState } from 'react';
+import { 
+  Box, 
+  Typography, 
+  Grid, 
+  TextField,
+  InputAdornment,
+  IconButton,
+  Tabs,
+  Tab,
+  Chip,
+  Divider
+} from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import AddIcon from '@mui/icons-material/Add';
+import Card from '../../../components/ui/Card';
 import Button from '../../../components/ui/Button';
+import PageHeader from '../../../components/ui/PageHeader';
+import Table from '../../../components/ui/Table';
+import Link from 'next/link';
 
 export default function InventoryPage() {
-  const [activeTab, setActiveTab] = useState('all');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterCategory, setFilterCategory] = useState('all');
-  const [filterStrainType, setFilterStrainType] = useState('all');
-  
+  const [tabValue, setTabValue] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
+
   // Sample inventory data
-  const inventoryItems = [
-    { id: 1, name: 'Purple Haze', sku: 'VEN001-PH-001', category: 'indoor', strainType: 'sativa', quantity: 25, location: 'Warehouse A' },
-    { id: 2, name: 'OG Kush', sku: 'VEN002-OGK-001', category: 'indoor', strainType: 'indica', quantity: 15, location: 'Warehouse B' },
-    { id: 3, name: 'Blue Dream', sku: 'VEN001-BD-001', category: 'outdoor', strainType: 'hybrid', quantity: 30, location: 'Warehouse A' },
-    { id: 4, name: 'Sour Diesel', sku: 'VEN003-SD-001', category: 'light dep', strainType: 'sativa', quantity: 20, location: 'Warehouse C' },
-    { id: 5, name: 'Granddaddy Purple', sku: 'VEN002-GDP-001', category: 'indoor', strainType: 'indica', quantity: 10, location: 'Warehouse B' },
+  const inventoryData = [
+    { 
+      id: 'INV001', 
+      sku: 'VEN001-PH-001', 
+      name: 'Purple Haze', 
+      category: 'Indoor', 
+      strain: 'Sativa', 
+      quantity: 25, 
+      price: '$45.00', 
+      location: 'Warehouse A',
+      status: 'In Stock'
+    },
+    { 
+      id: 'INV002', 
+      sku: 'VEN002-OGK-001', 
+      name: 'OG Kush', 
+      category: 'Indoor', 
+      strain: 'Indica', 
+      quantity: 5, 
+      price: '$50.00', 
+      location: 'Warehouse B',
+      status: 'Low Stock'
+    },
+    { 
+      id: 'INV003', 
+      sku: 'VEN003-BD-002', 
+      name: 'Blue Dream', 
+      category: 'Light Dep', 
+      strain: 'Hybrid', 
+      quantity: 18, 
+      price: '$40.00', 
+      location: 'Warehouse A',
+      status: 'In Stock'
+    },
+    { 
+      id: 'INV004', 
+      sku: 'VEN001-SD-003', 
+      name: 'Sour Diesel', 
+      category: 'Outdoor', 
+      strain: 'Sativa', 
+      quantity: 30, 
+      price: '$35.00', 
+      location: 'Warehouse C',
+      status: 'In Stock'
+    },
+    { 
+      id: 'INV005', 
+      sku: 'VEN004-GG-001', 
+      name: 'Gorilla Glue', 
+      category: 'Indoor', 
+      strain: 'Hybrid', 
+      quantity: 12, 
+      price: '$48.00', 
+      location: 'Warehouse A',
+      status: 'In Stock'
+    },
   ];
-  
-  // Filter inventory items based on search term and filters
-  const filteredItems = inventoryItems.filter(item => {
-    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         item.sku.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = filterCategory === 'all' || item.category === filterCategory;
-    const matchesStrainType = filterStrainType === 'all' || item.strainType === filterStrainType;
-    
-    return matchesSearch && matchesCategory && matchesStrainType;
-  });
+
+  // Table columns
+  const columns = [
+    { id: 'sku', label: 'SKU' },
+    { id: 'name', label: 'Product Name' },
+    { id: 'category', label: 'Category', 
+      format: (value) => (
+        <Chip 
+          label={value} 
+          size="small" 
+          color={value === 'Indoor' ? 'primary' : value === 'Light Dep' ? 'secondary' : 'default'} 
+          variant="outlined" 
+        />
+      )
+    },
+    { id: 'strain', label: 'Strain',
+      format: (value) => (
+        <Chip 
+          label={value} 
+          size="small" 
+          color={value === 'Sativa' ? 'success' : value === 'Indica' ? 'info' : 'warning'} 
+          variant="outlined" 
+        />
+      )
+    },
+    { id: 'quantity', label: 'Quantity', align: 'right' },
+    { id: 'price', label: 'Price', align: 'right' },
+    { id: 'location', label: 'Location' },
+    { id: 'status', label: 'Status',
+      format: (value) => (
+        <Chip 
+          label={value} 
+          size="small" 
+          color={value === 'In Stock' ? 'success' : 'error'} 
+        />
+      )
+    },
+  ];
+
+  // Filter data based on search query
+  const filteredData = inventoryData.filter(item => 
+    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.sku.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Handle tab change
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
+  };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Inventory Management</h1>
-        <Button href="/dashboard/inventory/add">Add New Item</Button>
-      </div>
+    <Box>
+      <PageHeader 
+        title="Inventory Management" 
+        description="Manage your hemp flower inventory across all locations"
+        breadcrumbs={[
+          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Inventory', href: '/dashboard/inventory' },
+        ]}
+        actions={
+          <Button 
+            component={Link}
+            href="/dashboard/inventory/add"
+            variant="contained" 
+            startIcon={<AddIcon />}
+          >
+            Add Product
+          </Button>
+        }
+      />
       
-      <div className="mb-6">
-        <div className="flex border-b">
-          <button
-            className={`px-4 py-2 ${activeTab === 'all' ? 'border-b-2 border-primary-500 text-primary-600' : 'text-gray-500'}`}
-            onClick={() => setActiveTab('all')}
-          >
-            All Items
-          </button>
-          <button
-            className={`px-4 py-2 ${activeTab === 'low' ? 'border-b-2 border-primary-500 text-primary-600' : 'text-gray-500'}`}
-            onClick={() => setActiveTab('low')}
-          >
-            Low Stock
-          </button>
-          <button
-            className={`px-4 py-2 ${activeTab === 'locations' ? 'border-b-2 border-primary-500 text-primary-600' : 'text-gray-500'}`}
-            onClick={() => setActiveTab('locations')}
-          >
-            By Location
-          </button>
-        </div>
-      </div>
-      
-      <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="col-span-1 md:col-span-2">
-          <input
-            type="text"
-            placeholder="Search by name or SKU..."
-            className="w-full p-2 border rounded"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-        <div>
-          <select 
-            className="w-full p-2 border rounded"
-            value={filterCategory}
-            onChange={(e) => setFilterCategory(e.target.value)}
-          >
-            <option value="all">All Categories</option>
-            <option value="indoor">Indoor</option>
-            <option value="outdoor">Outdoor</option>
-            <option value="light dep">Light Dep</option>
-            <option value="concentrate">Concentrate</option>
-            <option value="vape">Vape</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-        <div>
-          <select 
-            className="w-full p-2 border rounded"
-            value={filterStrainType}
-            onChange={(e) => setFilterStrainType(e.target.value)}
-          >
-            <option value="all">All Strain Types</option>
-            <option value="indica">Indica</option>
-            <option value="sativa">Sativa</option>
-            <option value="hybrid">Hybrid</option>
-          </select>
-        </div>
-      </div>
-      
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border">
-          <thead>
-            <tr>
-              <th className="py-2 px-4 border-b">SKU</th>
-              <th className="py-2 px-4 border-b">Name</th>
-              <th className="py-2 px-4 border-b">Category</th>
-              <th className="py-2 px-4 border-b">Strain Type</th>
-              <th className="py-2 px-4 border-b">Quantity</th>
-              <th className="py-2 px-4 border-b">Location</th>
-              <th className="py-2 px-4 border-b">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredItems.map(item => (
-              <tr key={item.id}>
-                <td className="py-2 px-4 border-b">{item.sku}</td>
-                <td className="py-2 px-4 border-b">{item.name}</td>
-                <td className="py-2 px-4 border-b capitalize">{item.category}</td>
-                <td className="py-2 px-4 border-b capitalize">{item.strainType}</td>
-                <td className="py-2 px-4 border-b">{item.quantity}</td>
-                <td className="py-2 px-4 border-b">{item.location}</td>
-                <td className="py-2 px-4 border-b">
-                  <Button size="sm">View</Button>
-                  <Button size="sm" className="ml-2">Edit</Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      
-      {filteredItems.length === 0 && (
-        <div className="text-center py-8">
-          <p className="text-gray-500">No inventory items found matching your criteria.</p>
-        </div>
-      )}
-    </div>
+      <Card>
+        <Box sx={{ mb: 3 }}>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                placeholder="Search by product name or SKU"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                }}
+                size="small"
+              />
+            </Grid>
+            <Grid item xs={12} md={6} sx={{ display: 'flex', justifyContent: { xs: 'flex-start', md: 'flex-end' } }}>
+              <Button 
+                variant="outlined" 
+                startIcon={<FilterListIcon />}
+                sx={{ mr: 1 }}
+              >
+                Filter
+              </Button>
+              <Button variant="outlined">
+                Export
+              </Button>
+            </Grid>
+          </Grid>
+        </Box>
+        
+        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
+          <Tabs value={tabValue} onChange={handleTabChange}>
+            <Tab label="All Products" />
+            <Tab label="Indoor" />
+            <Tab label="Light Dep" />
+            <Tab label="Outdoor" />
+            <Tab label="Low Stock" />
+          </Tabs>
+        </Box>
+        
+        <Table 
+          columns={columns} 
+          data={filteredData}
+          pagination={true}
+          rowsPerPage={10}
+        />
+      </Card>
+    </Box>
   );
 }

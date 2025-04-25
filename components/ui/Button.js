@@ -1,57 +1,80 @@
+'use client';
+
 import React from 'react';
+import { Button as MuiButton, CircularProgress } from '@mui/material';
+import { styled } from '@mui/material/styles';
+
+const StyledButton = styled(MuiButton)(({ theme, size, fullWidth }) => ({
+  borderRadius: theme.shape.borderRadius,
+  textTransform: 'none',
+  ...(fullWidth && {
+    width: '100%',
+  }),
+  ...(size === 'sm' && {
+    padding: '0.375rem 0.75rem',
+    fontSize: '0.875rem',
+  }),
+  ...(size === 'lg' && {
+    padding: '0.75rem 1.5rem',
+    fontSize: '1.125rem',
+  }),
+}));
 
 /**
- * Button component with various styles and options
+ * Button component for triggering actions
  * 
  * @param {Object} props - Component props
- * @param {string} [props.variant='default'] - Button variant (default, outline, ghost)
- * @param {string} [props.size='default'] - Button size (sm, default, lg)
- * @param {boolean} [props.disabled=false] - Whether the button is disabled
  * @param {React.ReactNode} props.children - Button content
- * @param {string} [props.className] - Additional CSS classes
+ * @param {string} [props.variant='contained'] - Button variant (contained, outlined, text)
+ * @param {string} [props.color='primary'] - Button color (primary, secondary, error, warning, info, success)
+ * @param {string} [props.size='medium'] - Button size (small, medium, large, sm, lg)
+ * @param {boolean} [props.fullWidth=false] - Whether the button should take up the full width
+ * @param {boolean} [props.disabled=false] - Whether the button is disabled
+ * @param {boolean} [props.loading=false] - Whether to show a loading indicator
  * @param {function} [props.onClick] - Click handler
  * @param {string} [props.type='button'] - Button type (button, submit, reset)
+ * @param {string} [props.className] - Additional CSS classes
  */
 export default function Button({
-  variant = 'default',
-  size = 'default',
-  disabled = false,
   children,
-  className = '',
+  variant = 'contained',
+  color = 'primary',
+  size = 'medium',
+  fullWidth = false,
+  disabled = false,
+  loading = false,
   onClick,
   type = 'button',
+  className = '',
   ...props
 }) {
-  // Base styles
-  const baseStyles = 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none';
-  
-  // Variant styles
-  const variantStyles = {
-    default: 'bg-primary text-primary-foreground hover:bg-primary/90',
-    outline: 'border border-input hover:bg-accent hover:text-accent-foreground',
-    ghost: 'hover:bg-accent hover:text-accent-foreground',
-    link: 'underline-offset-4 hover:underline text-primary',
-  };
-  
-  // Size styles
-  const sizeStyles = {
-    default: 'h-10 py-2 px-4',
-    sm: 'h-9 px-3 rounded-md',
-    lg: 'h-11 px-8 rounded-md',
-  };
-  
-  // Combine all styles
-  const buttonStyles = `${baseStyles} ${variantStyles[variant] || variantStyles.default} ${sizeStyles[size] || sizeStyles.default} ${className}`;
+  // Map custom sizes to MUI sizes
+  const muiSize = size === 'sm' ? 'small' : size === 'lg' ? 'large' : size;
   
   return (
-    <button
-      type={type}
-      className={buttonStyles}
-      disabled={disabled}
+    <StyledButton
+      variant={variant}
+      color={color}
+      size={muiSize}
+      fullWidth={fullWidth}
+      disabled={disabled || loading}
       onClick={onClick}
+      type={type}
+      className={className}
       {...props}
     >
-      {children}
-    </button>
+      {loading ? (
+        <>
+          <CircularProgress
+            size={muiSize === 'small' ? 16 : muiSize === 'large' ? 24 : 20}
+            color="inherit"
+            sx={{ mr: 1 }}
+          />
+          {children}
+        </>
+      ) : (
+        children
+      )}
+    </StyledButton>
   );
 }

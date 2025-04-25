@@ -1,62 +1,102 @@
 'use client';
 
 import React from 'react';
+import { TextField as MuiTextField, InputAdornment, FormHelperText, FormControl, InputLabel, FormLabel } from '@mui/material';
+import { styled } from '@mui/material/styles';
+
+const StyledFormControl = styled(FormControl)(({ theme }) => ({
+  width: '100%',
+  marginBottom: theme.spacing(2)
+}));
 
 /**
- * Input component for form fields
+ * Input component for text entry
  * 
  * @param {Object} props - Component props
- * @param {string} props.id - Input ID
- * @param {string} props.name - Input name
- * @param {string} [props.type='text'] - Input type
+ * @param {string} [props.id] - Input id
+ * @param {string} [props.name] - Input name
  * @param {string} [props.label] - Input label
- * @param {string} [props.placeholder] - Input placeholder
  * @param {string} [props.value] - Input value
- * @param {function} [props.onChange] - Change handler
- * @param {string} [props.error] - Error message
- * @param {string} [props.className] - Additional CSS classes
+ * @param {string} [props.placeholder] - Input placeholder
+ * @param {string} [props.type='text'] - Input type (text, password, email, etc.)
+ * @param {string} [props.variant='outlined'] - Input variant (outlined, filled, standard)
+ * @param {string} [props.size='medium'] - Input size (small, medium)
+ * @param {boolean} [props.fullWidth=true] - Whether the input should take up the full width
  * @param {boolean} [props.required=false] - Whether the input is required
+ * @param {boolean} [props.disabled=false] - Whether the input is disabled
+ * @param {boolean} [props.error=false] - Whether the input has an error
+ * @param {string} [props.helperText] - Helper text to display below the input
+ * @param {React.ReactNode} [props.startAdornment] - Content to display at the start of the input
+ * @param {React.ReactNode} [props.endAdornment] - Content to display at the end of the input
+ * @param {function} [props.onChange] - Change handler
+ * @param {function} [props.onBlur] - Blur handler
+ * @param {function} [props.onFocus] - Focus handler
+ * @param {string} [props.className] - Additional CSS classes
  */
 export default function Input({
   id,
   name,
-  type = 'text',
   label,
-  placeholder,
   value,
-  onChange,
-  error,
-  className = '',
+  placeholder,
+  type = 'text',
+  variant = 'outlined',
+  size = 'medium',
+  fullWidth = true,
   required = false,
+  disabled = false,
+  error = false,
+  helperText,
+  startAdornment,
+  endAdornment,
+  onChange,
+  onBlur,
+  onFocus,
+  className = '',
   ...props
 }) {
+  const inputProps = {};
+  
+  if (startAdornment) {
+    inputProps.startAdornment = (
+      <InputAdornment position="start">{startAdornment}</InputAdornment>
+    );
+  }
+  
+  if (endAdornment) {
+    inputProps.endAdornment = (
+      <InputAdornment position="end">{endAdornment}</InputAdornment>
+    );
+  }
+  
   return (
-    <div className={`mb-4 ${className}`}>
+    <StyledFormControl error={error} className={className}>
       {label && (
-        <label 
-          htmlFor={id} 
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-        >
+        <FormLabel htmlFor={id} required={required} sx={{ mb: 1 }}>
           {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
-        </label>
+        </FormLabel>
       )}
-      <input
+      <MuiTextField
         id={id}
         name={name}
         type={type}
-        placeholder={placeholder}
         value={value}
-        onChange={onChange}
+        placeholder={placeholder}
+        variant={variant}
+        size={size}
+        fullWidth={fullWidth}
         required={required}
-        className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-          error ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 placeholder-gray-400'
-        }`}
+        disabled={disabled}
+        error={error}
+        onChange={onChange}
+        onBlur={onBlur}
+        onFocus={onFocus}
+        InputProps={Object.keys(inputProps).length > 0 ? inputProps : undefined}
         {...props}
       />
-      {error && (
-        <p className="mt-1 text-sm text-red-600 dark:text-red-400">{error}</p>
+      {helperText && (
+        <FormHelperText>{helperText}</FormHelperText>
       )}
-    </div>
+    </StyledFormControl>
   );
 }

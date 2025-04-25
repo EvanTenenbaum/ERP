@@ -1,36 +1,67 @@
 'use client';
 
 import React from 'react';
+import { 
+  Card as MuiCard, 
+  CardContent, 
+  CardHeader, 
+  CardActions,
+  Typography,
+  Box
+} from '@mui/material';
+import { styled } from '@mui/material/styles';
+
+const StyledCard = styled(MuiCard)(({ theme, variant }) => ({
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  borderRadius: theme.shape.borderRadius,
+  ...(variant === 'outlined' && {
+    border: `1px solid ${theme.palette.divider}`,
+    boxShadow: 'none'
+  })
+}));
 
 /**
- * Card component for displaying content in a boxed container
+ * Card component for displaying content in a contained format
  * 
  * @param {Object} props - Component props
  * @param {React.ReactNode} props.children - Card content
- * @param {string} [props.title] - Optional card title
+ * @param {string} [props.title] - Card title
+ * @param {React.ReactNode} [props.action] - Action component to display in header
+ * @param {React.ReactNode} [props.footer] - Footer content
+ * @param {string} [props.variant='elevation'] - Card variant (elevation or outlined)
  * @param {string} [props.className] - Additional CSS classes
- * @param {boolean} [props.noPadding=false] - Whether to remove padding
  */
 export default function Card({
   children,
   title,
+  action,
+  footer,
+  variant = 'elevation',
   className = '',
-  noPadding = false,
   ...props
 }) {
   return (
-    <div 
-      className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden ${className}`}
-      {...props}
-    >
+    <StyledCard variant={variant} className={className} {...props}>
       {title && (
-        <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">{title}</h3>
-        </div>
+        <CardHeader 
+          title={
+            <Typography variant="h6" component="h2">
+              {title}
+            </Typography>
+          }
+          action={action}
+        />
       )}
-      <div className={noPadding ? '' : 'p-4'}>
+      <CardContent sx={{ flexGrow: 1, pt: title ? 0 : 2 }}>
         {children}
-      </div>
-    </div>
+      </CardContent>
+      {footer && (
+        <CardActions>
+          {footer}
+        </CardActions>
+      )}
+    </StyledCard>
   );
 }

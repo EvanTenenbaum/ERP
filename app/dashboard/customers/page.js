@@ -1,127 +1,234 @@
-"use client";
+'use client';
 
 import React, { useState } from 'react';
+import { 
+  Box, 
+  Typography, 
+  Grid, 
+  TextField,
+  InputAdornment,
+  IconButton,
+  Avatar,
+  Chip,
+  Divider,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemAvatar
+} from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import AddIcon from '@mui/icons-material/Add';
+import PersonIcon from '@mui/icons-material/Person';
+import BusinessIcon from '@mui/icons-material/Business';
+import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
+import EmailIcon from '@mui/icons-material/Email';
+import Card from '../../../components/ui/Card';
 import Button from '../../../components/ui/Button';
+import PageHeader from '../../../components/ui/PageHeader';
+import Table from '../../../components/ui/Table';
+import Link from 'next/link';
 
 export default function CustomersPage() {
-  const [activeTab, setActiveTab] = useState('all');
-  const [searchTerm, setSearchTerm] = useState('');
-  
-  // Sample customer data
-  const customers = [
-    { id: 1, code: 'CUST001', name: 'Greenleaf Distributors', contact: 'John Smith', email: 'john@greenleaf.com', phone: '(555) 123-4567', status: 'active', creditLimit: 10000 },
-    { id: 2, code: 'CUST002', name: 'Herbal Solutions', contact: 'Jane Doe', email: 'jane@herbalsolutions.com', phone: '(555) 234-5678', status: 'active', creditLimit: 5000 },
-    { id: 3, code: 'CUST003', name: 'Natural Wellness Co', contact: 'Robert Johnson', email: 'robert@naturalwellness.com', phone: '(555) 345-6789', status: 'inactive', creditLimit: 7500 },
-    { id: 4, code: 'CUST004', name: 'Pure Hemp Collective', contact: 'Sarah Williams', email: 'sarah@purehempcollective.com', phone: '(555) 456-7890', status: 'active', creditLimit: 15000 },
-    { id: 5, code: 'CUST005', name: 'Organic Remedies', contact: 'Michael Brown', email: 'michael@organicremedies.com', phone: '(555) 567-8901', status: 'pending', creditLimit: 2500 },
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Sample customers data
+  const customersData = [
+    { 
+      id: 'CUST001', 
+      name: 'Greenleaf Distributors', 
+      contact: 'John Smith', 
+      email: 'john@greenleaf.com', 
+      phone: '(555) 123-4567', 
+      location: 'Los Angeles, CA',
+      status: 'Active',
+      creditLimit: '$50,000',
+      totalPurchases: '$124,500'
+    },
+    { 
+      id: 'CUST002', 
+      name: 'Herbal Solutions', 
+      contact: 'Sarah Johnson', 
+      email: 'sarah@herbalsolutions.com', 
+      phone: '(555) 234-5678', 
+      location: 'Denver, CO',
+      status: 'Active',
+      creditLimit: '$35,000',
+      totalPurchases: '$87,200'
+    },
+    { 
+      id: 'CUST003', 
+      name: 'Natural Wellness', 
+      contact: 'Michael Brown', 
+      email: 'michael@naturalwellness.com', 
+      phone: '(555) 345-6789', 
+      location: 'Portland, OR',
+      status: 'Active',
+      creditLimit: '$25,000',
+      totalPurchases: '$62,800'
+    },
+    { 
+      id: 'CUST004', 
+      name: 'Organic Remedies', 
+      contact: 'Jessica Davis', 
+      email: 'jessica@organicremedies.com', 
+      phone: '(555) 456-7890', 
+      location: 'Seattle, WA',
+      status: 'Inactive',
+      creditLimit: '$15,000',
+      totalPurchases: '$8,500'
+    },
+    { 
+      id: 'CUST005', 
+      name: 'Pure Hemp Collective', 
+      contact: 'David Wilson', 
+      email: 'david@purehempcollective.com', 
+      phone: '(555) 567-8901', 
+      location: 'Austin, TX',
+      status: 'Active',
+      creditLimit: '$40,000',
+      totalPurchases: '$95,300'
+    },
   ];
-  
-  // Filter customers based on search term and active tab
-  const filteredCustomers = customers.filter(customer => {
-    const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         customer.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         customer.contact.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesTab = activeTab === 'all' || 
-                      (activeTab === 'active' && customer.status === 'active') ||
-                      (activeTab === 'inactive' && customer.status === 'inactive') ||
-                      (activeTab === 'pending' && customer.status === 'pending');
-    
-    return matchesSearch && matchesTab;
-  });
+
+  // Table columns
+  const columns = [
+    { id: 'id', label: 'Customer ID' },
+    { id: 'name', label: 'Business Name' },
+    { id: 'contact', label: 'Contact Person' },
+    { id: 'email', label: 'Email' },
+    { id: 'phone', label: 'Phone' },
+    { id: 'location', label: 'Location' },
+    { id: 'status', label: 'Status',
+      format: (value) => (
+        <Chip 
+          label={value} 
+          size="small" 
+          color={value === 'Active' ? 'success' : 'default'} 
+        />
+      )
+    },
+    { id: 'creditLimit', label: 'Credit Limit', align: 'right' },
+    { id: 'totalPurchases', label: 'Total Purchases', align: 'right' },
+  ];
+
+  // Filter data based on search query
+  const filteredData = customersData.filter(item => 
+    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.contact.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.id.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Top customers for highlight section
+  const topCustomers = [...customersData]
+    .sort((a, b) => {
+      const aValue = parseFloat(a.totalPurchases.replace(/[^0-9.-]+/g, ''));
+      const bValue = parseFloat(b.totalPurchases.replace(/[^0-9.-]+/g, ''));
+      return bValue - aValue;
+    })
+    .slice(0, 3);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Customer Management</h1>
-        <Button>Add New Customer</Button>
-      </div>
+    <Box>
+      <PageHeader 
+        title="Customer Management" 
+        description="Manage your wholesale customers and their information"
+        breadcrumbs={[
+          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Customers', href: '/dashboard/customers' },
+        ]}
+        actions={
+          <Button 
+            component={Link}
+            href="/dashboard/customers/new"
+            variant="contained" 
+            startIcon={<AddIcon />}
+          >
+            Add Customer
+          </Button>
+        }
+      />
       
-      <div className="mb-6">
-        <div className="flex border-b">
-          <button
-            className={`px-4 py-2 ${activeTab === 'all' ? 'border-b-2 border-primary-500 text-primary-600' : 'text-gray-500'}`}
-            onClick={() => setActiveTab('all')}
-          >
-            All Customers
-          </button>
-          <button
-            className={`px-4 py-2 ${activeTab === 'active' ? 'border-b-2 border-primary-500 text-primary-600' : 'text-gray-500'}`}
-            onClick={() => setActiveTab('active')}
-          >
-            Active
-          </button>
-          <button
-            className={`px-4 py-2 ${activeTab === 'inactive' ? 'border-b-2 border-primary-500 text-primary-600' : 'text-gray-500'}`}
-            onClick={() => setActiveTab('inactive')}
-          >
-            Inactive
-          </button>
-          <button
-            className={`px-4 py-2 ${activeTab === 'pending' ? 'border-b-2 border-primary-500 text-primary-600' : 'text-gray-500'}`}
-            onClick={() => setActiveTab('pending')}
-          >
-            Pending
-          </button>
-        </div>
-      </div>
+      <Grid container spacing={3} sx={{ mb: 3 }}>
+        {topCustomers.map((customer, index) => (
+          <Grid item xs={12} md={4} key={index}>
+            <Card>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <Avatar 
+                  sx={{ 
+                    bgcolor: index === 0 ? 'primary.main' : index === 1 ? 'secondary.main' : 'success.main',
+                    mr: 2
+                  }}
+                >
+                  {customer.name.charAt(0)}
+                </Avatar>
+                <Box>
+                  <Typography variant="h6">{customer.name}</Typography>
+                  <Typography variant="body2" color="text.secondary">{customer.id}</Typography>
+                </Box>
+              </Box>
+              
+              <Divider sx={{ my: 1.5 }} />
+              
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <Typography variant="body2" color="text.secondary">Total Purchases</Typography>
+                  <Typography variant="h6">{customer.totalPurchases}</Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography variant="body2" color="text.secondary">Credit Limit</Typography>
+                  <Typography variant="h6">{customer.creditLimit}</Typography>
+                </Grid>
+              </Grid>
+              
+              <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
+                <Button 
+                  component={Link}
+                  href={`/dashboard/customers/${customer.id}`}
+                  variant="outlined" 
+                  size="small"
+                >
+                  View Profile
+                </Button>
+              </Box>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
       
-      <div className="mb-6">
-        <input
-          type="text"
-          placeholder="Search by name, code, or contact..."
-          className="w-full md:w-1/2 p-2 border rounded"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+      <Card>
+        <Box sx={{ mb: 3 }}>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                placeholder="Search by name, contact, or ID"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                }}
+                size="small"
+              />
+            </Grid>
+            <Grid item xs={12} md={6} sx={{ display: 'flex', justifyContent: { xs: 'flex-start', md: 'flex-end' } }}>
+              <Button variant="outlined">
+                Export
+              </Button>
+            </Grid>
+          </Grid>
+        </Box>
+        
+        <Table 
+          columns={columns} 
+          data={filteredData}
+          pagination={true}
+          rowsPerPage={10}
         />
-      </div>
-      
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border">
-          <thead>
-            <tr>
-              <th className="py-2 px-4 border-b">Code</th>
-              <th className="py-2 px-4 border-b">Name</th>
-              <th className="py-2 px-4 border-b">Contact</th>
-              <th className="py-2 px-4 border-b">Email</th>
-              <th className="py-2 px-4 border-b">Phone</th>
-              <th className="py-2 px-4 border-b">Status</th>
-              <th className="py-2 px-4 border-b">Credit Limit</th>
-              <th className="py-2 px-4 border-b">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredCustomers.map(customer => (
-              <tr key={customer.id}>
-                <td className="py-2 px-4 border-b">{customer.code}</td>
-                <td className="py-2 px-4 border-b">{customer.name}</td>
-                <td className="py-2 px-4 border-b">{customer.contact}</td>
-                <td className="py-2 px-4 border-b">{customer.email}</td>
-                <td className="py-2 px-4 border-b">{customer.phone}</td>
-                <td className="py-2 px-4 border-b">
-                  <span className={`px-2 py-1 rounded text-xs ${
-                    customer.status === 'active' ? 'bg-green-100 text-green-800' :
-                    customer.status === 'inactive' ? 'bg-red-100 text-red-800' :
-                    'bg-yellow-100 text-yellow-800'
-                  }`}>
-                    {customer.status.charAt(0).toUpperCase() + customer.status.slice(1)}
-                  </span>
-                </td>
-                <td className="py-2 px-4 border-b">${customer.creditLimit.toLocaleString()}</td>
-                <td className="py-2 px-4 border-b">
-                  <Button size="sm" href={`/dashboard/customers/${customer.id}`}>View</Button>
-                  <Button size="sm" className="ml-2">Edit</Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      
-      {filteredCustomers.length === 0 && (
-        <div className="text-center py-8">
-          <p className="text-gray-500">No customers found matching your criteria.</p>
-        </div>
-      )}
-    </div>
+      </Card>
+    </Box>
   );
 }
