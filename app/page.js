@@ -1,97 +1,176 @@
 'use client';
-
 import React from 'react';
 import Link from 'next/link';
+import { Box, Typography, Button, Container, Grid, Card as MuiCard, CardContent } from '@mui/material';
+import InventoryIcon from '@mui/icons-material/Inventory';
+import PeopleIcon from '@mui/icons-material/People';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import HomeIcon from '@mui/icons-material/Home';
+import IconButton from '@mui/material/IconButton';
 
 export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="bg-white shadow-sm dark:bg-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex">
-              <div className="flex-shrink-0 flex items-center">
-                <h1 className="text-xl font-bold text-primary-600 dark:text-primary-400">
-                  Hemp ERP
-                </h1>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+      {/* Navigation Bar */}
+      <AppBar position="static" color="default" elevation={1} sx={{ mb: 3 }}>
+        <Toolbar>
+          <IconButton 
+            component={Link} 
+            href="/" 
+            color="inherit" 
+            edge="start" 
+            sx={{ mr: 2 }}
+          >
+            <HomeIcon />
+          </IconButton>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            Hemp ERP
+          </Typography>
+          <Button 
+            component={Link} 
+            href="/dashboard" 
+            color="inherit"
+            sx={{ mx: 1 }}
+          >
+            Dashboard
+          </Button>
+          <Button 
+            component={Link} 
+            href="/dashboard/inventory" 
+            color="inherit"
+            sx={{ mx: 1 }}
+          >
+            Inventory
+          </Button>
+          <Button 
+            component={Link} 
+            href="/dashboard/customers" 
+            color="inherit"
+            sx={{ mx: 1 }}
+          >
+            Customers
+          </Button>
+          <Button 
+            component={Link} 
+            href="/dashboard/sales" 
+            color="inherit"
+            sx={{ mx: 1 }}
+          >
+            Sales
+          </Button>
+        </Toolbar>
+      </AppBar>
       
       <main className="flex-grow">
-        <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white sm:text-5xl sm:tracking-tight lg:text-6xl">
+        <Container maxWidth="lg" sx={{ py: 6 }}>
+          <Box sx={{ textAlign: 'center', mb: 6 }}>
+            <Typography variant="h2" component="h1" gutterBottom sx={{ fontWeight: 'bold' }}>
               Multi-Tenant ERP System
-            </h1>
-            <p className="mt-5 max-w-xl mx-auto text-xl text-gray-500 dark:text-gray-400">
+            </Typography>
+            <Typography variant="h5" color="text.secondary" paragraph>
               A comprehensive solution for hemp flower wholesale brokerage businesses
-            </p>
-          </div>
+            </Typography>
+          </Box>
           
-          <div className="mt-12 grid gap-8 grid-cols-1 md:grid-cols-3">
-            <div className="bg-white overflow-hidden shadow rounded-lg dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-              <div className="px-4 py-5 sm:p-6">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white">Inventory Management</h3>
-                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                  Track inventory across multiple locations with product images and detailed information.
-                </p>
-                <div className="mt-4">
-                  <Link href="/dashboard/inventory" className="btn btn-primary inline-block">
+          <Grid container spacing={4}>
+            <Grid item xs={12} md={4}>
+              <MuiCard sx={{ height: '100%', display: 'flex', flexDirection: 'column', borderRadius: 2 }}>
+                <CardContent sx={{ flexGrow: 1, p: 3 }}>
+                  <InventoryIcon color="primary" sx={{ fontSize: 40, mb: 2 }} />
+                  <Typography variant="h5" component="h2" gutterBottom>
+                    Inventory Management
+                  </Typography>
+                  <Typography color="text.secondary" paragraph>
+                    Track inventory across multiple locations with product images and detailed information.
+                  </Typography>
+                  <Button 
+                    component={Link} 
+                    href="/dashboard/inventory" 
+                    variant="contained" 
+                    color="primary"
+                    endIcon={<ArrowForwardIcon />}
+                  >
                     Explore Inventory
-                  </Link>
-                </div>
-              </div>
-            </div>
+                  </Button>
+                </CardContent>
+              </MuiCard>
+            </Grid>
             
-            <div className="bg-white overflow-hidden shadow rounded-lg dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-              <div className="px-4 py-5 sm:p-6">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white">Customer Management</h3>
-                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                  Manage customer information, track sales history, and monitor payment patterns.
-                </p>
-                <div className="mt-4">
-                  <Link href="/dashboard/customers" className="btn btn-primary inline-block">
+            <Grid item xs={12} md={4}>
+              <MuiCard sx={{ height: '100%', display: 'flex', flexDirection: 'column', borderRadius: 2 }}>
+                <CardContent sx={{ flexGrow: 1, p: 3 }}>
+                  <PeopleIcon color="primary" sx={{ fontSize: 40, mb: 2 }} />
+                  <Typography variant="h5" component="h2" gutterBottom>
+                    Customer Management
+                  </Typography>
+                  <Typography color="text.secondary" paragraph>
+                    Manage customer information, track sales history, and monitor payment patterns.
+                  </Typography>
+                  <Button 
+                    component={Link} 
+                    href="/dashboard/customers" 
+                    variant="contained" 
+                    color="primary"
+                    endIcon={<ArrowForwardIcon />}
+                  >
                     View Customers
-                  </Link>
-                </div>
-              </div>
-            </div>
+                  </Button>
+                </CardContent>
+              </MuiCard>
+            </Grid>
             
-            <div className="bg-white overflow-hidden shadow rounded-lg dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-              <div className="px-4 py-5 sm:p-6">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white">Sales & Reporting</h3>
-                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                  Create invoices, manage sales, and generate comprehensive reports.
-                </p>
-                <div className="mt-4">
-                  <Link href="/dashboard/reports" className="btn btn-primary inline-block">
+            <Grid item xs={12} md={4}>
+              <MuiCard sx={{ height: '100%', display: 'flex', flexDirection: 'column', borderRadius: 2 }}>
+                <CardContent sx={{ flexGrow: 1, p: 3 }}>
+                  <AssessmentIcon color="primary" sx={{ fontSize: 40, mb: 2 }} />
+                  <Typography variant="h5" component="h2" gutterBottom>
+                    Sales & Reporting
+                  </Typography>
+                  <Typography color="text.secondary" paragraph>
+                    Create invoices, manage sales, and generate comprehensive reports.
+                  </Typography>
+                  <Button 
+                    component={Link} 
+                    href="/dashboard/reports" 
+                    variant="contained" 
+                    color="primary"
+                    endIcon={<ArrowForwardIcon />}
+                  >
                     View Reports
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
+                  </Button>
+                </CardContent>
+              </MuiCard>
+            </Grid>
+          </Grid>
           
-          <div className="mt-8 text-center">
-            <Link href="/dashboard" className="btn btn-secondary inline-flex items-center">
+          <Box sx={{ textAlign: 'center', mt: 6 }}>
+            <Button 
+              component={Link} 
+              href="/dashboard" 
+              variant="outlined" 
+              color="primary" 
+              size="large"
+              startIcon={<DashboardIcon />}
+              sx={{ px: 4, py: 1.5 }}
+            >
               Go to Dashboard
-              <svg xmlns="http://www.w3.org/2000/svg" className="ml-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-              </svg>
-            </Link>
-          </div>
-        </div>
+            </Button>
+          </Box>
+        </Container>
       </main>
       
       <footer className="bg-white shadow-sm dark:bg-gray-800 mt-auto">
-        <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-sm text-gray-500 dark:text-gray-400">
-            &copy; {new Date().getFullYear()} Hemp ERP. All rights reserved.
-          </p>
-        </div>
+        <Container maxWidth="lg">
+          <Box sx={{ py: 3, textAlign: 'center' }}>
+            <Typography variant="body2" color="text.secondary">
+              &copy; {new Date().getFullYear()} Hemp ERP. All rights reserved.
+            </Typography>
+          </Box>
+        </Container>
       </footer>
     </div>
   );

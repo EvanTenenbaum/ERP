@@ -1,9 +1,9 @@
 'use client';
-
 import React from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { AppProvider } from '../../lib/context/AppContext';
+import ResponsiveLayout from '../../components/ui/layout/ResponsiveLayout';
 
 // Create a theme instance
 const theme = createTheme({
@@ -173,12 +173,14 @@ export default function DashboardLayout({ children }) {
   // You can implement theme switching logic here if needed
   const [mode, setMode] = React.useState('light');
   const currentTheme = mode === 'light' ? theme : darkTheme;
-
+  
   return (
     <ThemeProvider theme={currentTheme}>
       <CssBaseline />
       <AppProvider>
-        {children}
+        <ResponsiveLayout>
+          {children}
+        </ResponsiveLayout>
       </AppProvider>
     </ThemeProvider>
   );
