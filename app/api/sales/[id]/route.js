@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { getPrismaClient } from '@/lib/dynamic-prisma';
 import { requirePermission } from '@/lib/api-auth';
 import { PERMISSIONS } from '@/lib/rbac';
 
@@ -14,7 +14,7 @@ export async function GET(request, { params }) {
   const { id } = params;
   
   try {
-    const sale = await prisma.sale.findUnique({
+    const sale = await (await getPrismaClient()).sale.findUnique({
       where: {
         id,
         tenantId: session.user.tenantId, // Ensure tenant isolation
@@ -91,7 +91,7 @@ export async function PUT(request, { params }) {
   
   try {
     // Verify sale exists and belongs to tenant
-    const existingSale = await prisma.sale.findUnique({
+    const existingSale = await (await getPrismaClient()).sale.findUnique({
       where: {
         id,
         tenantId: session.user.tenantId,
@@ -118,7 +118,7 @@ export async function PUT(request, { params }) {
     const { status, paymentStatus, paymentDate, notes } = data;
     
     // Update sale
-    const updatedSale = await prisma.sale.update({
+    const updatedSale = await (await getPrismaClient()).sale.update({
       where: {
         id,
       },
@@ -173,7 +173,7 @@ export async function DELETE(request, { params }) {
   
   try {
     // Verify sale exists and belongs to tenant
-    const existingSale = await prisma.sale.findUnique({
+    const existingSale = await (await getPrismaClient()).sale.findUnique({
       where: {
         id,
         tenantId: session.user.tenantId,
@@ -212,7 +212,7 @@ export async function DELETE(request, { params }) {
     }
     
     // Delete sale and items in a transaction
-    await prisma.$transaction(async (tx) => {
+    await (await getPrismaClient()).$transaction(async (tx) => {
       // Delete sale items
       await tx.saleItem.deleteMany({
         where: {

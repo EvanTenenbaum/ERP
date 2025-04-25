@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { getPrismaClient } from '@/lib/dynamic-prisma';
 import { requirePermission } from '@/lib/api-auth';
 import { PERMISSIONS } from '@/lib/rbac';
 
@@ -39,13 +39,13 @@ export async function GET(request) {
     
     // Get vendors with pagination
     const [vendors, total] = await Promise.all([
-      prisma.vendor.findMany({
+      (await getPrismaClient()).vendor.findMany({
         where,
         skip,
         take: limit,
         orderBy: { name: 'asc' },
       }),
-      prisma.vendor.count({ where }),
+      (await getPrismaClient()).vendor.count({ where }),
     ]);
     
     return NextResponse.json({
@@ -79,7 +79,7 @@ export async function POST(request) {
     const data = await request.json();
     
     // Create vendor
-    const vendor = await prisma.vendor.create({
+    const vendor = await (await getPrismaClient()).vendor.create({
       data: {
         ...data,
         tenantId: session.user.tenantId,

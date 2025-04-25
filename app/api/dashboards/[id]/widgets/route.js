@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { getPrismaClient } from '@/lib/dynamic-prisma';
 import { requirePermission } from '@/lib/api-auth';
 import { PERMISSIONS } from '@/lib/rbac';
 
@@ -15,7 +15,7 @@ export async function GET(request, { params }) {
   
   try {
     // Verify dashboard exists and belongs to tenant
-    const dashboard = await prisma.dashboard.findUnique({
+    const dashboard = await (await getPrismaClient()).dashboard.findUnique({
       where: {
         id,
         tenantId: session.user.tenantId,
@@ -36,7 +36,7 @@ export async function GET(request, { params }) {
     }
     
     // Get widgets for the dashboard
-    const widgets = await prisma.dashboardWidget.findMany({
+    const widgets = await (await getPrismaClient()).dashboardWidget.findMany({
       where: {
         dashboardId: id,
       },
@@ -68,7 +68,7 @@ export async function POST(request, { params }) {
   
   try {
     // Verify dashboard exists and belongs to tenant
-    const dashboard = await prisma.dashboard.findUnique({
+    const dashboard = await (await getPrismaClient()).dashboard.findUnique({
       where: {
         id,
         tenantId: session.user.tenantId,
@@ -105,7 +105,7 @@ export async function POST(request, { params }) {
     const { widgetType, widgetName, widgetConfig, positionX, positionY, width, height } = data;
     
     // Create widget
-    const widget = await prisma.dashboardWidget.create({
+    const widget = await (await getPrismaClient()).dashboardWidget.create({
       data: {
         dashboardId: id,
         widgetType,

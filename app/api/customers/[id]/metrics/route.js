@@ -1,5 +1,8 @@
+// Update to customers/[id]/metrics/route.js
+// Using dynamic import approach for Prisma client
+
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { getPrismaClient } from '@/lib/dynamic-prisma';
 import { requirePermission } from '@/lib/api-auth';
 import { PERMISSIONS } from '@/lib/rbac';
 
@@ -14,6 +17,9 @@ export async function GET(request, { params }) {
   const { id } = params;
   
   try {
+    // Get Prisma client dynamically
+    const prisma = await getPrismaClient();
+    
     // Verify customer exists and belongs to tenant
     const customer = await prisma.customer.findUnique({
       where: {

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { getPrismaClient } from '@/lib/dynamic-prisma';
 import { requirePermission } from '@/lib/api-auth';
 import { PERMISSIONS } from '@/lib/rbac';
 
@@ -40,7 +40,7 @@ export async function POST(request) {
     }
     
     // Find source inventory record
-    const sourceRecord = await prisma.inventoryRecord.findFirst({
+    const sourceRecord = await (await getPrismaClient()).inventoryRecord.findFirst({
       where: {
         productId,
         locationId: sourceLocationId,
@@ -81,7 +81,7 @@ export async function POST(request) {
     }
     
     // Perform the transfer in a transaction
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await (await getPrismaClient()).$transaction(async (tx) => {
       // Reduce quantity from source
       const updatedSourceRecord = await tx.inventoryRecord.update({
         where: {

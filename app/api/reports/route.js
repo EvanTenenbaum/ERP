@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { getPrismaClient } from '@/lib/dynamic-prisma';
 import { requirePermission } from '@/lib/api-auth';
 import { PERMISSIONS } from '@/lib/rbac';
 
@@ -34,7 +34,7 @@ export async function GET(request) {
     
     // Get reports with pagination
     const [reports, total] = await Promise.all([
-      prisma.reportDefinition.findMany({
+      (await getPrismaClient()).reportDefinition.findMany({
         where,
         skip,
         take: limit,
@@ -49,7 +49,7 @@ export async function GET(request) {
           },
         },
       }),
-      prisma.reportDefinition.count({ where }),
+      (await getPrismaClient()).reportDefinition.count({ where }),
     ]);
     
     return NextResponse.json({
@@ -84,7 +84,7 @@ export async function POST(request) {
     const { reportName, reportDescription, reportCategory, reportType, parameters, layout } = data;
     
     // Create report definition with parameters and default layout
-    const report = await prisma.reportDefinition.create({
+    const report = await (await getPrismaClient()).reportDefinition.create({
       data: {
         tenantId: session.user.tenantId,
         reportName,

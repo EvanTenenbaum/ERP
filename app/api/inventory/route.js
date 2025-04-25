@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { getPrismaClient } from '@/lib/dynamic-prisma';
 import { requirePermission } from '@/lib/api-auth';
 import { PERMISSIONS } from '@/lib/rbac';
 
@@ -35,7 +35,7 @@ export async function GET(request) {
     
     // Get inventory records with pagination
     const [inventoryRecords, total] = await Promise.all([
-      prisma.inventoryRecord.findMany({
+      (await getPrismaClient()).inventoryRecord.findMany({
         where,
         skip,
         take: limit,
@@ -70,7 +70,7 @@ export async function GET(request) {
           { location: { name: 'asc' } },
         ],
       }),
-      prisma.inventoryRecord.count({ where }),
+      (await getPrismaClient()).inventoryRecord.count({ where }),
     ]);
     
     return NextResponse.json({

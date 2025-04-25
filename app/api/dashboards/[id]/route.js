@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { getPrismaClient } from '@/lib/dynamic-prisma';
 import { requirePermission } from '@/lib/api-auth';
 import { PERMISSIONS } from '@/lib/rbac';
 
@@ -14,7 +14,7 @@ export async function GET(request, { params }) {
   const { id } = params;
   
   try {
-    const dashboard = await prisma.dashboard.findUnique({
+    const dashboard = await (await getPrismaClient()).dashboard.findUnique({
       where: {
         id,
         tenantId: session.user.tenantId, // Ensure tenant isolation
@@ -71,7 +71,7 @@ export async function PUT(request, { params }) {
   
   try {
     // Verify dashboard exists and belongs to tenant
-    const existingDashboard = await prisma.dashboard.findUnique({
+    const existingDashboard = await (await getPrismaClient()).dashboard.findUnique({
       where: {
         id,
         tenantId: session.user.tenantId,
@@ -111,7 +111,7 @@ export async function PUT(request, { params }) {
     const { dashboardName, dashboardDescription, isActive, widgets } = data;
     
     // Update dashboard
-    const updatedDashboard = await prisma.$transaction(async (tx) => {
+    const updatedDashboard = await (await getPrismaClient()).$transaction(async (tx) => {
       // Update dashboard definition
       const dashboard = await tx.dashboard.update({
         where: {
@@ -195,7 +195,7 @@ export async function DELETE(request, { params }) {
   
   try {
     // Verify dashboard exists and belongs to tenant
-    const dashboard = await prisma.dashboard.findUnique({
+    const dashboard = await (await getPrismaClient()).dashboard.findUnique({
       where: {
         id,
         tenantId: session.user.tenantId,
@@ -229,7 +229,7 @@ export async function DELETE(request, { params }) {
     }
     
     // Delete dashboard and related entities in a transaction
-    await prisma.$transaction(async (tx) => {
+    await (await getPrismaClient()).$transaction(async (tx) => {
       // Delete widgets
       await tx.dashboardWidget.deleteMany({
         where: {

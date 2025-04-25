@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { getPrismaClient } from '@/lib/dynamic-prisma';
 import { requirePermission } from '@/lib/api-auth';
 import { PERMISSIONS } from '@/lib/rbac';
 
@@ -14,7 +14,7 @@ export async function GET(request, { params }) {
   const { id } = params;
   
   try {
-    const report = await prisma.reportDefinition.findUnique({
+    const report = await (await getPrismaClient()).reportDefinition.findUnique({
       where: {
         id,
         tenantId: session.user.tenantId, // Ensure tenant isolation
@@ -71,7 +71,7 @@ export async function PUT(request, { params }) {
   
   try {
     // Verify report exists and belongs to tenant
-    const existingReport = await prisma.reportDefinition.findUnique({
+    const existingReport = await (await getPrismaClient()).reportDefinition.findUnique({
       where: {
         id,
         tenantId: session.user.tenantId,
@@ -112,7 +112,7 @@ export async function PUT(request, { params }) {
     const { reportName, reportDescription, reportCategory, reportType, isActive, parameters, layouts } = data;
     
     // Update report
-    const updatedReport = await prisma.$transaction(async (tx) => {
+    const updatedReport = await (await getPrismaClient()).$transaction(async (tx) => {
       // Update report definition
       const report = await tx.reportDefinition.update({
         where: {
@@ -245,7 +245,7 @@ export async function DELETE(request, { params }) {
   
   try {
     // Verify report exists and belongs to tenant
-    const report = await prisma.reportDefinition.findUnique({
+    const report = await (await getPrismaClient()).reportDefinition.findUnique({
       where: {
         id,
         tenantId: session.user.tenantId,
@@ -279,7 +279,7 @@ export async function DELETE(request, { params }) {
     }
     
     // Delete report and related entities in a transaction
-    await prisma.$transaction(async (tx) => {
+    await (await getPrismaClient()).$transaction(async (tx) => {
       // Delete parameters
       await tx.reportParameter.deleteMany({
         where: {

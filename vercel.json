@@ -1,18 +1,8 @@
 {
-  "version": 2,
-  "buildCommand": "npx prisma generate && next build",
-  "installCommand": "npm install --legacy-peer-deps && npx prisma generate",
+  "buildCommand": "node vercel-build-flag.js && prisma generate && next build",
+  "installCommand": "npm install",
   "framework": "nextjs",
-  "devCommand": "npm run dev",
-  "outputDirectory": ".next",
   "env": {
-    "DATABASE_URL": "postgresql://username:password@localhost:5432/database_name",
-    "NEXTAUTH_SECRET": "your-nextauth-secret-key",
-    "NEXTAUTH_URL": "https://your-app-domain.vercel.app",
-    "NEXT_PUBLIC_APP_URL": "https://your-app-domain.vercel.app"
-  },
-  "github": {
-    "silent": true,
-    "autoJobCancelation": true
+    "VERCEL_ENV": "production"
   }
 }

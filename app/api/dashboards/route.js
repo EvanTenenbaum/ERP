@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { getPrismaClient } from '@/lib/dynamic-prisma';
 import { requirePermission } from '@/lib/api-auth';
 import { PERMISSIONS } from '@/lib/rbac';
 
@@ -30,7 +30,7 @@ export async function GET(request) {
     
     // Get dashboards with pagination
     const [dashboards, total] = await Promise.all([
-      prisma.dashboard.findMany({
+      (await getPrismaClient()).dashboard.findMany({
         where,
         skip,
         take: limit,
@@ -51,7 +51,7 @@ export async function GET(request) {
           },
         },
       }),
-      prisma.dashboard.count({ where }),
+      (await getPrismaClient()).dashboard.count({ where }),
     ]);
     
     return NextResponse.json({
@@ -86,7 +86,7 @@ export async function POST(request) {
     const { dashboardName, dashboardDescription, widgets = [] } = data;
     
     // Create dashboard with widgets
-    const dashboard = await prisma.dashboard.create({
+    const dashboard = await (await getPrismaClient()).dashboard.create({
       data: {
         tenantId: session.user.tenantId,
         dashboardName,

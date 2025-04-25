@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { getPrismaClient } from '@/lib/dynamic-prisma';
 import { requirePermission } from '@/lib/api-auth';
 import { PERMISSIONS } from '@/lib/rbac';
 
@@ -15,7 +15,7 @@ export async function GET(request, { params }) {
   
   try {
     // Verify dashboard exists and belongs to tenant
-    const dashboard = await prisma.dashboard.findUnique({
+    const dashboard = await (await getPrismaClient()).dashboard.findUnique({
       where: {
         id,
         tenantId: session.user.tenantId,
@@ -36,7 +36,7 @@ export async function GET(request, { params }) {
     }
     
     // Get widget
-    const widget = await prisma.dashboardWidget.findUnique({
+    const widget = await (await getPrismaClient()).dashboardWidget.findUnique({
       where: {
         id: widgetId,
         dashboardId: id,
@@ -78,7 +78,7 @@ export async function PUT(request, { params }) {
   
   try {
     // Verify dashboard exists and belongs to tenant
-    const dashboard = await prisma.dashboard.findUnique({
+    const dashboard = await (await getPrismaClient()).dashboard.findUnique({
       where: {
         id,
         tenantId: session.user.tenantId,
@@ -112,7 +112,7 @@ export async function PUT(request, { params }) {
     }
     
     // Verify widget exists
-    const existingWidget = await prisma.dashboardWidget.findUnique({
+    const existingWidget = await (await getPrismaClient()).dashboardWidget.findUnique({
       where: {
         id: widgetId,
         dashboardId: id,
@@ -136,7 +136,7 @@ export async function PUT(request, { params }) {
     const { widgetType, widgetName, widgetConfig, positionX, positionY, width, height } = data;
     
     // Update widget
-    const widget = await prisma.dashboardWidget.update({
+    const widget = await (await getPrismaClient()).dashboardWidget.update({
       where: {
         id: widgetId,
       },
@@ -173,7 +173,7 @@ export async function DELETE(request, { params }) {
   
   try {
     // Verify dashboard exists and belongs to tenant
-    const dashboard = await prisma.dashboard.findUnique({
+    const dashboard = await (await getPrismaClient()).dashboard.findUnique({
       where: {
         id,
         tenantId: session.user.tenantId,
@@ -207,7 +207,7 @@ export async function DELETE(request, { params }) {
     }
     
     // Verify widget exists
-    const widget = await prisma.dashboardWidget.findUnique({
+    const widget = await (await getPrismaClient()).dashboardWidget.findUnique({
       where: {
         id: widgetId,
         dashboardId: id,
@@ -228,7 +228,7 @@ export async function DELETE(request, { params }) {
     }
     
     // Delete widget
-    await prisma.dashboardWidget.delete({
+    await (await getPrismaClient()).dashboardWidget.delete({
       where: {
         id: widgetId,
       },

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { getPrismaClient } from '@/lib/dynamic-prisma';
 import { requirePermission } from '@/lib/api-auth';
 import { PERMISSIONS } from '@/lib/rbac';
 
@@ -14,7 +14,7 @@ export async function GET(request, { params }) {
   const { id } = params;
   
   try {
-    const product = await prisma.product.findUnique({
+    const product = await (await getPrismaClient()).product.findUnique({
       where: {
         id,
         tenantId: session.user.tenantId, // Ensure tenant isolation
@@ -73,7 +73,7 @@ export async function PUT(request, { params }) {
     const data = await request.json();
     
     // Update product
-    const product = await prisma.product.update({
+    const product = await (await getPrismaClient()).product.update({
       where: {
         id,
         tenantId: session.user.tenantId, // Ensure tenant isolation
@@ -116,7 +116,7 @@ export async function DELETE(request, { params }) {
   
   try {
     // Check if product has inventory records
-    const inventoryCount = await prisma.inventoryRecord.count({
+    const inventoryCount = await (await getPrismaClient()).inventoryRecord.count({
       where: {
         productId: id,
         tenantId: session.user.tenantId,
@@ -137,7 +137,7 @@ export async function DELETE(request, { params }) {
     }
     
     // Check if product has been used in sales
-    const salesItemCount = await prisma.saleItem.count({
+    const salesItemCount = await (await getPrismaClient()).saleItem.count({
       where: {
         productId: id,
       },
@@ -157,14 +157,14 @@ export async function DELETE(request, { params }) {
     }
     
     // Delete product images first
-    await prisma.inventoryImage.deleteMany({
+    await (await getPrismaClient()).inventoryImage.deleteMany({
       where: {
         productId: id,
       },
     });
     
     // Delete product
-    await prisma.product.delete({
+    await (await getPrismaClient()).product.delete({
       where: {
         id,
         tenantId: session.user.tenantId, // Ensure tenant isolation

@@ -1,5 +1,8 @@
+// Update to customers/[id]/route.js
+// Using dynamic import approach for Prisma client
+
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { getPrismaClient } from '@/lib/dynamic-prisma';
 import { requirePermission } from '@/lib/api-auth';
 import { PERMISSIONS } from '@/lib/rbac';
 
@@ -14,10 +17,18 @@ export async function GET(request, { params }) {
   const { id } = params;
   
   try {
+    // Get Prisma client dynamically
+    const prisma = await getPrismaClient();
+    
+    // Fetch customer data
     const customer = await prisma.customer.findUnique({
       where: {
         id,
-        tenantId: session.user.tenantId, // Ensure tenant isolation
+        tenantId: session.user.tenantId,
+      },
+      include: {
+        contacts: true,
+        addresses: true,
       },
     });
     
@@ -45,7 +56,7 @@ export async function GET(request, { params }) {
 }
 
 export async function PUT(request, { params }) {
-  const auth = await requirePermission(request, PERMISSIONS.EDIT_CUSTOMER);
+  const auth = await requirePermission(request, PERMISSIONS.EDIT_CUSTOMERS);
   
   if (!auth.authorized) {
     return auth.response;
@@ -57,29 +68,49 @@ export async function PUT(request, { params }) {
   try {
     const data = await request.json();
     
-    // Update customer
-    const customer = await prisma.customer.update({
+    // Get Prisma client dynamically
+    const prisma = await getPrismaClient();
+    
+    // Verify customer exists and belongs to tenant
+    const existingCustomer = await prisma.customer.findUnique({
       where: {
         id,
-        tenantId: session.user.tenantId, // Ensure tenant isolation
-      },
-      data: {
-        ...data,
-        creditLimit: data.creditLimit ? parseFloat(data.creditLimit) : null,
+        tenantId: session.user.tenantId,
       },
     });
     
-    return NextResponse.json(customer);
-  } catch (error) {
-    console.error('Error updating customer:', error);
-    
-    if (error.code === 'P2002' && error.meta?.target?.includes('tenantId_code')) {
+    if (!existingCustomer) {
       return NextResponse.json(
-        { error: { code: 'DUPLICATE_CODE', message: 'Customer code already exists' } },
-        { status: 400 }
+        { 
+          error: { 
+            code: 'RESOURCE_NOT_FOUND', 
+            message: `Customer with ID ${id} not found`,
+            details: { resourceType: 'customer', resourceId: id }
+          } 
+        },
+        { status: 404 }
       );
     }
     
+    // Update customer
+    const updatedCustomer = await prisma.customer.update({
+      where: {
+        id,
+      },
+      data: {
+        ...data,
+        // Ensure tenant ID cannot be changed
+        tenantId: session.user.tenantId,
+      },
+      include: {
+        contacts: true,
+        addresses: true,
+      },
+    });
+    
+    return NextResponse.json(updatedCustomer);
+  } catch (error) {
+    console.error('Error updating customer:', error);
     return NextResponse.json(
       { error: { code: 'INTERNAL_SERVER_ERROR', message: 'An unexpected error occurred' } },
       { status: 500 }
@@ -88,7 +119,7 @@ export async function PUT(request, { params }) {
 }
 
 export async function DELETE(request, { params }) {
-  const auth = await requirePermission(request, PERMISSIONS.DELETE_CUSTOMER);
+  const auth = await requirePermission(request, PERMISSIONS.DELETE_CUSTOMERS);
   
   if (!auth.authorized) {
     return auth.response;
@@ -98,24 +129,27 @@ export async function DELETE(request, { params }) {
   const { id } = params;
   
   try {
-    // Check if customer has associated sales
-    const salesCount = await prisma.sale.count({
+    // Get Prisma client dynamically
+    const prisma = await getPrismaClient();
+    
+    // Verify customer exists and belongs to tenant
+    const existingCustomer = await prisma.customer.findUnique({
       where: {
-        customerId: id,
+        id,
         tenantId: session.user.tenantId,
       },
     });
     
-    if (salesCount > 0) {
+    if (!existingCustomer) {
       return NextResponse.json(
         { 
           error: { 
-            code: 'RESOURCE_IN_USE', 
-            message: 'Cannot delete customer with associated sales',
-            details: { salesCount }
+            code: 'RESOURCE_NOT_FOUND', 
+            message: `Customer with ID ${id} not found`,
+            details: { resourceType: 'customer', resourceId: id }
           } 
         },
-        { status: 400 }
+        { status: 404 }
       );
     }
     
@@ -123,7 +157,6 @@ export async function DELETE(request, { params }) {
     await prisma.customer.delete({
       where: {
         id,
-        tenantId: session.user.tenantId, // Ensure tenant isolation
       },
     });
     
