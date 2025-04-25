@@ -1,8 +1,9 @@
+// Updated vercel.json with simplified configuration
+// Following official Prisma and Next.js best practices for Vercel deployment
+
 {
-  "buildCommand": "node vercel-build-flag.js && prisma generate && next build",
+  "version": 2,
+  "buildCommand": "prisma generate && next build",
   "installCommand": "npm install",
-  "framework": "nextjs",
-  "env": {
-    "VERCEL_ENV": "production"
-  }
+  "framework": "nextjs"
 }

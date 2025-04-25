@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getPrismaClient } from '@/lib/dynamic-prisma';
+import { prisma } from '@/lib/prisma';
 import { requirePermission } from '@/lib/api-auth';
 import { PERMISSIONS } from '@/lib/rbac';
 import bcrypt from 'bcrypt';
@@ -15,7 +15,7 @@ export async function GET(request, { params }) {
   const { id } = params;
   
   try {
-    const user = await (await getPrismaClient()).user.findUnique({
+    const user = await (prisma).user.findUnique({
       where: {
         id,
         tenantId: session.user.tenantId, // Ensure tenant isolation
@@ -77,7 +77,7 @@ export async function PUT(request, { params }) {
     }
     
     // Update user
-    const user = await (await getPrismaClient()).user.update({
+    const user = await (prisma).user.update({
       where: {
         id,
         tenantId: session.user.tenantId, // Ensure tenant isolation
@@ -115,7 +115,7 @@ export async function DELETE(request, { params }) {
   
   try {
     // Delete user
-    await (await getPrismaClient()).user.delete({
+    await (prisma).user.delete({
       where: {
         id,
         tenantId: session.user.tenantId, // Ensure tenant isolation

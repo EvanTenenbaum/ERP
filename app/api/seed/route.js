@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getPrismaClient } from '@/lib/dynamic-prisma';
+import { prisma } from '@/lib/prisma';
 import { requirePermission } from '@/lib/api-auth';
 import { PERMISSIONS } from '@/lib/rbac';
 import bcrypt from 'bcrypt';
@@ -15,7 +15,7 @@ export async function POST(request) {
   
   try {
     // Create a default tenant if it doesn't exist
-    const defaultTenant = await (await getPrismaClient()).tenant.upsert({
+    const defaultTenant = await (prisma).tenant.upsert({
       where: { id: 'default-tenant-id' },
       update: {},
       create: {
@@ -35,7 +35,7 @@ export async function POST(request) {
 
     // Create admin user if it doesn't exist
     const adminPassword = await bcrypt.hash('Admin123!', 10);
-    const adminUser = await (await getPrismaClient()).user.upsert({
+    const adminUser = await (prisma).user.upsert({
       where: { email: 'admin@example.com' },
       update: {},
       create: {
@@ -52,7 +52,7 @@ export async function POST(request) {
 
     // Create manager user if it doesn't exist
     const managerPassword = await bcrypt.hash('Manager123!', 10);
-    const managerUser = await (await getPrismaClient()).user.upsert({
+    const managerUser = await (prisma).user.upsert({
       where: { email: 'manager@example.com' },
       update: {},
       create: {
@@ -69,7 +69,7 @@ export async function POST(request) {
 
     // Create regular user if it doesn't exist
     const userPassword = await bcrypt.hash('User123!', 10);
-    const regularUser = await (await getPrismaClient()).user.upsert({
+    const regularUser = await (prisma).user.upsert({
       where: { email: 'user@example.com' },
       update: {},
       create: {
@@ -85,7 +85,7 @@ export async function POST(request) {
     console.log(`Created regular user: ${regularUser.email}`);
 
     // Create sample locations
-    const warehouse = await (await getPrismaClient()).location.upsert({
+    const warehouse = await (prisma).location.upsert({
       where: { id: 'warehouse-1' },
       update: {},
       create: {
@@ -100,7 +100,7 @@ export async function POST(request) {
       },
     });
 
-    const storefront = await (await getPrismaClient()).location.upsert({
+    const storefront = await (prisma).location.upsert({
       where: { id: 'storefront-1' },
       update: {},
       create: {
@@ -167,7 +167,7 @@ export async function POST(request) {
     ];
 
     for (const product of products) {
-      await (await getPrismaClient()).product.upsert({
+      await (prisma).product.upsert({
         where: { id: product.id },
         update: {},
         create: product,
@@ -229,7 +229,7 @@ export async function POST(request) {
     ];
 
     for (const customer of customers) {
-      await (await getPrismaClient()).customer.upsert({
+      await (prisma).customer.upsert({
         where: { id: customer.id },
         update: {},
         create: customer,
@@ -273,7 +273,7 @@ export async function POST(request) {
     ];
 
     for (const vendor of vendors) {
-      await (await getPrismaClient()).vendor.upsert({
+      await (prisma).vendor.upsert({
         where: { id: vendor.id },
         update: {},
         create: vendor,
@@ -347,14 +347,14 @@ export async function POST(request) {
     ];
 
     // Clear existing inventory records to avoid duplicates
-    await (await getPrismaClient()).inventoryRecord.deleteMany({
+    await (prisma).inventoryRecord.deleteMany({
       where: {
         tenantId: defaultTenant.id,
       },
     });
 
     for (const record of inventoryRecords) {
-      await (await getPrismaClient()).inventoryRecord.create({
+      await (prisma).inventoryRecord.create({
         data: record,
       });
     }
@@ -363,19 +363,19 @@ export async function POST(request) {
 
     // Create sample sales
     // Clear existing sales to avoid duplicates
-    await (await getPrismaClient()).saleItem.deleteMany({
+    await (prisma).saleItem.deleteMany({
       where: {
         tenantId: defaultTenant.id,
       },
     });
     
-    await (await getPrismaClient()).sale.deleteMany({
+    await (prisma).sale.deleteMany({
       where: {
         tenantId: defaultTenant.id,
       },
     });
 
-    const sale1 = await (await getPrismaClient()).sale.create({
+    const sale1 = await (prisma).sale.create({
       data: {
         customerId: 'customer-1',
         saleDate: new Date('2025-04-20'),
@@ -402,7 +402,7 @@ export async function POST(request) {
       }
     });
 
-    const sale2 = await (await getPrismaClient()).sale.create({
+    const sale2 = await (prisma).sale.create({
       data: {
         customerId: 'customer-2',
         saleDate: new Date('2025-04-22'),
@@ -433,7 +433,7 @@ export async function POST(request) {
 
     // Create system reports
     // Clear existing reports to avoid duplicates
-    await (await getPrismaClient()).reportParameter.deleteMany({
+    await (prisma).reportParameter.deleteMany({
       where: {
         report: {
           tenantId: defaultTenant.id,
@@ -441,7 +441,7 @@ export async function POST(request) {
       },
     });
     
-    await (await getPrismaClient()).reportLayout.deleteMany({
+    await (prisma).reportLayout.deleteMany({
       where: {
         report: {
           tenantId: defaultTenant.id,
@@ -449,7 +449,7 @@ export async function POST(request) {
       },
     });
     
-    await (await getPrismaClient()).reportDefinition.deleteMany({
+    await (prisma).reportDefinition.deleteMany({
       where: {
         tenantId: defaultTenant.id,
       },
@@ -567,7 +567,7 @@ export async function POST(request) {
     ];
 
     for (const report of reports) {
-      await (await getPrismaClient()).reportDefinition.create({
+      await (prisma).reportDefinition.create({
         data: report,
       });
     }
@@ -576,7 +576,7 @@ export async function POST(request) {
 
     // Create default dashboard
     // Clear existing dashboards to avoid duplicates
-    await (await getPrismaClient()).dashboardWidget.deleteMany({
+    await (prisma).dashboardWidget.deleteMany({
       where: {
         dashboard: {
           tenantId: defaultTenant.id,
@@ -584,13 +584,13 @@ export async function POST(request) {
       },
     });
     
-    await (await getPrismaClient()).dashboard.deleteMany({
+    await (prisma).dashboard.deleteMany({
       where: {
         tenantId: defaultTenant.id,
       },
     });
 
-    const dashboard = await (await getPrismaClient()).dashboard.create({
+    const dashboard = await (prisma).dashboard.create({
       data: {
         dashboardName: 'Overview Dashboard',
         dashboardDescription: 'Main dashboard with key metrics',

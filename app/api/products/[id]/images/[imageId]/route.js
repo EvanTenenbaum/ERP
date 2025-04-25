@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getPrismaClient } from '@/lib/dynamic-prisma';
+import { prisma } from '@/lib/prisma';
 import { requirePermission } from '@/lib/api-auth';
 import { PERMISSIONS } from '@/lib/rbac';
 
@@ -15,7 +15,7 @@ export async function PUT(request, { params }) {
   
   try {
     // Verify product exists and belongs to tenant
-    const product = await (await getPrismaClient()).product.findUnique({
+    const product = await (prisma).product.findUnique({
       where: {
         id,
         tenantId: session.user.tenantId,
@@ -36,7 +36,7 @@ export async function PUT(request, { params }) {
     }
     
     // Verify image exists and belongs to product
-    const image = await (await getPrismaClient()).inventoryImage.findUnique({
+    const image = await (prisma).inventoryImage.findUnique({
       where: {
         id: imageId,
         productId: id,
@@ -60,7 +60,7 @@ export async function PUT(request, { params }) {
     
     // If setting as primary, unset any existing primary images
     if (data.isPrimary) {
-      await (await getPrismaClient()).inventoryImage.updateMany({
+      await (prisma).inventoryImage.updateMany({
         where: {
           productId: id,
           isPrimary: true,
@@ -72,7 +72,7 @@ export async function PUT(request, { params }) {
     }
     
     // Update image
-    const updatedImage = await (await getPrismaClient()).inventoryImage.update({
+    const updatedImage = await (prisma).inventoryImage.update({
       where: {
         id: imageId,
       },
@@ -104,7 +104,7 @@ export async function DELETE(request, { params }) {
   
   try {
     // Verify product exists and belongs to tenant
-    const product = await (await getPrismaClient()).product.findUnique({
+    const product = await (prisma).product.findUnique({
       where: {
         id,
         tenantId: session.user.tenantId,
@@ -125,7 +125,7 @@ export async function DELETE(request, { params }) {
     }
     
     // Verify image exists and belongs to product
-    const image = await (await getPrismaClient()).inventoryImage.findUnique({
+    const image = await (prisma).inventoryImage.findUnique({
       where: {
         id: imageId,
         productId: id,
@@ -147,7 +147,7 @@ export async function DELETE(request, { params }) {
     
     // If deleting primary image, set another image as primary if available
     if (image.isPrimary) {
-      const anotherImage = await (await getPrismaClient()).inventoryImage.findFirst({
+      const anotherImage = await (prisma).inventoryImage.findFirst({
         where: {
           productId: id,
           id: { not: imageId },
@@ -155,7 +155,7 @@ export async function DELETE(request, { params }) {
       });
       
       if (anotherImage) {
-        await (await getPrismaClient()).inventoryImage.update({
+        await (prisma).inventoryImage.update({
           where: {
             id: anotherImage.id,
           },
@@ -167,7 +167,7 @@ export async function DELETE(request, { params }) {
     }
     
     // Delete image
-    await (await getPrismaClient()).inventoryImage.delete({
+    await (prisma).inventoryImage.delete({
       where: {
         id: imageId,
       },

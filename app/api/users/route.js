@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getPrismaClient } from '@/lib/dynamic-prisma';
+import { prisma } from '@/lib/prisma';
 import { requirePermission } from '@/lib/api-auth';
 import { PERMISSIONS } from '@/lib/rbac';
 import bcrypt from 'bcrypt';
@@ -14,7 +14,7 @@ export async function GET(request) {
   const { session } = auth;
   
   try {
-    const users = await (await getPrismaClient()).user.findMany({
+    const users = await (prisma).user.findMany({
       where: {
         tenantId: session.user.tenantId,
       },
@@ -54,7 +54,7 @@ export async function POST(request) {
     const passwordHash = await bcrypt.hash(data.password, 10);
     
     // Create user
-    const user = await (await getPrismaClient()).user.create({
+    const user = await (prisma).user.create({
       data: {
         name: data.name,
         email: data.email,

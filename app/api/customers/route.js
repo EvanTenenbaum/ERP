@@ -2,7 +2,7 @@
 // Using dynamic import approach for Prisma client
 
 import { NextResponse } from 'next/server';
-import { getPrismaClient } from '@/lib/dynamic-prisma';
+import { prisma } from '@/lib/prisma';
 import { requirePermission } from '@/lib/api-auth';
 import { PERMISSIONS } from '@/lib/rbac';
 
@@ -25,7 +25,7 @@ export async function GET(request) {
   
   try {
     // Get Prisma client dynamically
-    const prisma = await getPrismaClient();
+    // Using simplified Prisma client singleton
     
     // Build filter conditions
     const where = {
@@ -84,7 +84,7 @@ export async function POST(request) {
     const data = await request.json();
     
     // Get Prisma client dynamically
-    const prisma = await getPrismaClient();
+    // Using simplified Prisma client singleton
     
     // Create customer
     const customer = await prisma.customer.create({

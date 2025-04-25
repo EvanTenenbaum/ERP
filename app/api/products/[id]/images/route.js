@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getPrismaClient } from '@/lib/dynamic-prisma';
+import { prisma } from '@/lib/prisma';
 import { requirePermission } from '@/lib/api-auth';
 import { PERMISSIONS } from '@/lib/rbac';
 
@@ -15,7 +15,7 @@ export async function GET(request, { params }) {
   
   try {
     // Verify product exists and belongs to tenant
-    const product = await (await getPrismaClient()).product.findUnique({
+    const product = await (prisma).product.findUnique({
       where: {
         id,
         tenantId: session.user.tenantId,
@@ -40,7 +40,7 @@ export async function GET(request, { params }) {
     }
     
     // Get product images
-    const images = await (await getPrismaClient()).inventoryImage.findMany({
+    const images = await (prisma).inventoryImage.findMany({
       where: {
         productId: id,
       },
@@ -77,7 +77,7 @@ export async function POST(request, { params }) {
   
   try {
     // Verify product exists and belongs to tenant
-    const product = await (await getPrismaClient()).product.findUnique({
+    const product = await (prisma).product.findUnique({
       where: {
         id,
         tenantId: session.user.tenantId,
@@ -100,7 +100,7 @@ export async function POST(request, { params }) {
     const data = await request.json();
     
     // Check if this is the first image and set as primary if so
-    const existingImagesCount = await (await getPrismaClient()).inventoryImage.count({
+    const existingImagesCount = await (prisma).inventoryImage.count({
       where: {
         productId: id,
       },
@@ -110,7 +110,7 @@ export async function POST(request, { params }) {
     
     // If setting as primary, unset any existing primary images
     if (isPrimary) {
-      await (await getPrismaClient()).inventoryImage.updateMany({
+      await (prisma).inventoryImage.updateMany({
         where: {
           productId: id,
           isPrimary: true,
@@ -122,7 +122,7 @@ export async function POST(request, { params }) {
     }
     
     // Create image
-    const image = await (await getPrismaClient()).inventoryImage.create({
+    const image = await (prisma).inventoryImage.create({
       data: {
         productId: id,
         imageUrl: data.imageUrl,

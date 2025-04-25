@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getPrismaClient } from '@/lib/dynamic-prisma';
+import { prisma } from '@/lib/prisma';
 import { requirePermission } from '@/lib/api-auth';
 import { PERMISSIONS } from '@/lib/rbac';
 
@@ -52,7 +52,7 @@ export async function GET(request) {
     
     // Get sales with pagination
     const [sales, total] = await Promise.all([
-      (await getPrismaClient()).sale.findMany({
+      (prisma).sale.findMany({
         where,
         skip,
         take: limit,
@@ -79,7 +79,7 @@ export async function GET(request) {
           },
         },
       }),
-      (await getPrismaClient()).sale.count({ where }),
+      (prisma).sale.count({ where }),
     ]);
     
     return NextResponse.json({
@@ -122,7 +122,7 @@ export async function POST(request) {
     }
     
     // Verify customer exists and belongs to tenant
-    const customer = await (await getPrismaClient()).customer.findUnique({
+    const customer = await (prisma).customer.findUnique({
       where: {
         id: customerId,
         tenantId: session.user.tenantId,
@@ -143,7 +143,7 @@ export async function POST(request) {
     }
     
     // Generate invoice number
-    const lastSale = await (await getPrismaClient()).sale.findFirst({
+    const lastSale = await (prisma).sale.findFirst({
       where: {
         tenantId: session.user.tenantId,
       },
@@ -168,7 +168,7 @@ export async function POST(request) {
     }
     
     // Create sale and items in a transaction
-    const sale = await (await getPrismaClient()).$transaction(async (tx) => {
+    const sale = await (prisma).$transaction(async (tx) => {
       // Create sale
       const newSale = await tx.sale.create({
         data: {

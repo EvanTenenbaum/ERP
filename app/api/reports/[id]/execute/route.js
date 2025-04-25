@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getPrismaClient } from '@/lib/dynamic-prisma';
+import { prisma } from '@/lib/prisma';
 import { requirePermission } from '@/lib/api-auth';
 import { PERMISSIONS } from '@/lib/rbac';
 
@@ -15,7 +15,7 @@ export async function POST(request, { params }) {
   
   try {
     // Verify report exists and belongs to tenant
-    const report = await (await getPrismaClient()).reportDefinition.findUnique({
+    const report = await (prisma).reportDefinition.findUnique({
       where: {
         id,
         tenantId: session.user.tenantId,
@@ -69,7 +69,7 @@ export async function POST(request, { params }) {
     }
     
     // Create execution record
-    const execution = await (await getPrismaClient()).reportExecutionHistory.create({
+    const execution = await (prisma).reportExecutionHistory.create({
       data: {
         reportId: id,
         userId: session.user.id,
@@ -109,7 +109,7 @@ export async function POST(request, { params }) {
     }
     
     // Update execution record
-    await (await getPrismaClient()).reportExecutionHistory.update({
+    await (prisma).reportExecutionHistory.update({
       where: {
         id: execution.id,
       },
@@ -159,7 +159,7 @@ async function generateSalesSummaryReport(tenantId, parameters) {
   const end = endDate ? new Date(endDate) : new Date();
   
   // Query sales data
-  const sales = await (await getPrismaClient()).sale.findMany({
+  const sales = await (prisma).sale.findMany({
     where: {
       tenantId,
       saleDate: {
@@ -253,7 +253,7 @@ async function generateInventorySummaryReport(tenantId, parameters) {
   };
   
   // Query inventory data
-  const inventory = await (await getPrismaClient()).inventoryRecord.findMany({
+  const inventory = await (prisma).inventoryRecord.findMany({
     where,
     include: {
       product: {
@@ -339,7 +339,7 @@ async function generateCustomerAnalyticsReport(tenantId, parameters) {
   }
   
   // Get customers with their sales
-  const customers = await (await getPrismaClient()).customer.findMany({
+  const customers = await (prisma).customer.findMany({
     where: {
       tenantId,
     },

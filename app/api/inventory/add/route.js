@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getPrismaClient } from '@/lib/dynamic-prisma';
+import { prisma } from '@/lib/prisma';
 import { requirePermission } from '@/lib/api-auth';
 import { PERMISSIONS } from '@/lib/rbac';
 
@@ -25,7 +25,7 @@ export async function POST(request) {
     }
     
     // Verify product exists and belongs to tenant
-    const product = await (await getPrismaClient()).product.findUnique({
+    const product = await (prisma).product.findUnique({
       where: {
         id: productId,
         tenantId: session.user.tenantId,
@@ -46,7 +46,7 @@ export async function POST(request) {
     }
     
     // Verify location exists and belongs to tenant
-    const location = await (await getPrismaClient()).location.findUnique({
+    const location = await (prisma).location.findUnique({
       where: {
         id: locationId,
         tenantId: session.user.tenantId,
@@ -67,7 +67,7 @@ export async function POST(request) {
     }
     
     // Check if inventory record already exists
-    const existingRecord = await (await getPrismaClient()).inventoryRecord.findFirst({
+    const existingRecord = await (prisma).inventoryRecord.findFirst({
       where: {
         productId,
         locationId,
@@ -80,7 +80,7 @@ export async function POST(request) {
     
     if (existingRecord) {
       // Update existing record
-      inventoryRecord = await (await getPrismaClient()).inventoryRecord.update({
+      inventoryRecord = await (prisma).inventoryRecord.update({
         where: {
           id: existingRecord.id,
         },
@@ -110,7 +110,7 @@ export async function POST(request) {
       });
     } else {
       // Create new record
-      inventoryRecord = await (await getPrismaClient()).inventoryRecord.create({
+      inventoryRecord = await (prisma).inventoryRecord.create({
         data: {
           tenantId: session.user.tenantId,
           productId,

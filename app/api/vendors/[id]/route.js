@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getPrismaClient } from '@/lib/dynamic-prisma';
+import { prisma } from '@/lib/prisma';
 import { requirePermission } from '@/lib/api-auth';
 import { PERMISSIONS } from '@/lib/rbac';
 
@@ -14,7 +14,7 @@ export async function GET(request, { params }) {
   const { id } = params;
   
   try {
-    const vendor = await (await getPrismaClient()).vendor.findUnique({
+    const vendor = await (prisma).vendor.findUnique({
       where: {
         id,
         tenantId: session.user.tenantId, // Ensure tenant isolation
@@ -70,7 +70,7 @@ export async function PUT(request, { params }) {
     const data = await request.json();
     
     // Update vendor
-    const vendor = await (await getPrismaClient()).vendor.update({
+    const vendor = await (prisma).vendor.update({
       where: {
         id,
         tenantId: session.user.tenantId, // Ensure tenant isolation
@@ -108,7 +108,7 @@ export async function DELETE(request, { params }) {
   
   try {
     // Check if vendor has associated products
-    const productsCount = await (await getPrismaClient()).product.count({
+    const productsCount = await (prisma).product.count({
       where: {
         vendorId: id,
         tenantId: session.user.tenantId,
@@ -129,7 +129,7 @@ export async function DELETE(request, { params }) {
     }
     
     // Delete vendor
-    await (await getPrismaClient()).vendor.delete({
+    await (prisma).vendor.delete({
       where: {
         id,
         tenantId: session.user.tenantId, // Ensure tenant isolation

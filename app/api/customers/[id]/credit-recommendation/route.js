@@ -2,7 +2,7 @@
 // Using dynamic import approach for Prisma client
 
 import { NextResponse } from 'next/server';
-import { getPrismaClient } from '@/lib/dynamic-prisma';
+import { prisma } from '@/lib/prisma';
 import { requirePermission } from '@/lib/api-auth';
 import { PERMISSIONS } from '@/lib/rbac';
 
@@ -18,7 +18,7 @@ export async function GET(request, { params }) {
   
   try {
     // Get Prisma client dynamically
-    const prisma = await getPrismaClient();
+    // Using simplified Prisma client singleton
     
     // Verify customer exists and belongs to tenant
     const customer = await prisma.customer.findUnique({

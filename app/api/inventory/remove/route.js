@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getPrismaClient } from '@/lib/dynamic-prisma';
+import { prisma } from '@/lib/prisma';
 import { requirePermission } from '@/lib/api-auth';
 import { PERMISSIONS } from '@/lib/rbac';
 
@@ -25,7 +25,7 @@ export async function POST(request) {
     }
     
     // Find inventory record
-    const inventoryRecord = await (await getPrismaClient()).inventoryRecord.findFirst({
+    const inventoryRecord = await (prisma).inventoryRecord.findFirst({
       where: {
         productId,
         locationId,
@@ -66,7 +66,7 @@ export async function POST(request) {
     }
     
     // Update inventory record
-    const updatedRecord = await (await getPrismaClient()).inventoryRecord.update({
+    const updatedRecord = await (prisma).inventoryRecord.update({
       where: {
         id: inventoryRecord.id,
       },
@@ -97,7 +97,7 @@ export async function POST(request) {
     
     // If quantity is now zero, delete the record
     if (updatedRecord.quantity <= 0) {
-      await (await getPrismaClient()).inventoryRecord.delete({
+      await (prisma).inventoryRecord.delete({
         where: {
           id: inventoryRecord.id,
         },
