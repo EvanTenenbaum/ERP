@@ -21,7 +21,8 @@ import {
   Fab,
   Card,
   CardContent,
-  InputAdornment
+  InputAdornment,
+  Stack
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
@@ -32,7 +33,6 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useForm, FormProvider, Controller } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import PageHeader from '../../../../components/ui/PageHeader';
-import SwipeableViews from 'react-swipeable-views';
 
 export default function MobileInventoryIntake() {
   const theme = useTheme();
@@ -558,18 +558,39 @@ export default function MobileInventoryIntake() {
         
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <SwipeableViews
-              axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
-              index={activeStep}
-              onChangeIndex={handleStepChange}
-              enableMouseEvents
+            {/* Replace SwipeableViews with native Material UI components */}
+            <Box
+              sx={{
+                width: '100%',
+                overflow: 'hidden',
+                position: 'relative',
+                minHeight: '300px'
+              }}
             >
-              {steps.map((label, index) => (
-                <div key={label} style={{ padding: 0 }}>
-                  {Math.abs(activeStep - index) <= 2 ? getStepContent(index) : null}
-                </div>
-              ))}
-            </SwipeableViews>
+              <Stack
+                direction="row"
+                sx={{
+                  transition: 'transform 0.35s ease',
+                  transform: `translateX(-${activeStep * 100}%)`,
+                  width: `${steps.length * 100}%`,
+                  display: 'flex',
+                  flexWrap: 'nowrap'
+                }}
+              >
+                {steps.map((label, index) => (
+                  <Box 
+                    key={label} 
+                    sx={{ 
+                      width: `${100 / steps.length}%`, 
+                      flexShrink: 0,
+                      visibility: Math.abs(activeStep - index) <= 1 ? 'visible' : 'hidden'
+                    }}
+                  >
+                    {Math.abs(activeStep - index) <= 1 ? getStepContent(index) : null}
+                  </Box>
+                ))}
+              </Stack>
+            </Box>
             
             {/* Mobile stepper controls */}
             <MobileStepper
