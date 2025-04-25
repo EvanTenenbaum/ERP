@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useVendors } from '../../../../lib/hooks/useVendors';
+import { useVendors } from '@/lib/hooks/useVendors';
 import Button from '../../../../components/ui/Button';
 import { ArrowLeftIcon, EditIcon, TrashIcon, PlusIcon, MessageSquareIcon, AlertTriangleIcon } from 'lucide-react';
 

@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useSales } from '../../../../lib/hooks/useSales';
-import { useCustomers } from '../../../../lib/hooks/useCustomers';
+import { useSales } from '@/lib/hooks/useSales';
+import { useCustomers } from '@/lib/hooks/useCustomers';
 import Button from '../../../../components/ui/Button';
 import { ArrowLeftIcon, EditIcon, TrashIcon, PrinterIcon, CreditCardIcon, AlertTriangleIcon } from 'lucide-react';
 

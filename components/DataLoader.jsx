@@ -1,7 +1,7 @@
 // Load data from API instead of dummy data
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import db from '../lib/database';
+import db from '@/lib/database';
 
 // Create a button to initialize the database with seed data
 export default function DataLoader() {

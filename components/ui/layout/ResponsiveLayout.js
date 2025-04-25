@@ -11,7 +11,7 @@ import {
 import { useState, useEffect } from 'react';
 import MobileLayout from './MobileLayout';
 import MainLayout from './MainLayout';
-import { AppProvider } from '../../../lib/context/AppContext';
+import { AppProvider } from '@/lib/context/AppContext';
 
 // Create responsive theme with mobile-first approach
 const createAppTheme = (mode) => {

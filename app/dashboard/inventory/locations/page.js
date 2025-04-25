@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useApp } from '../../../../lib/context/AppContext';
+import { useApp } from '@/lib/context/AppContext';
 import { RefreshCw, Plus, Trash, Edit } from 'lucide-react';
 
 export default function LocationsPage() {

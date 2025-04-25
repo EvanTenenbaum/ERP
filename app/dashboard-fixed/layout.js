@@ -1,6 +1,6 @@
 'use client';
 
-import { AppProvider } from '../../lib/context/AppContext';
+import { AppProvider } from '@/lib/context/AppContext';
 import MainLayout from '../../components/ui/layout/MainLayout';
 import DataLoader from '../../components/DataLoader';
 

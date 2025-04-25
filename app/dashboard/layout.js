@@ -2,7 +2,7 @@
 import React from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { AppProvider } from '../../lib/context/AppContext';
+import { AppProvider } from '@/lib/context/AppContext';
 import ResponsiveLayout from '../../components/ui/layout/ResponsiveLayout';
 
 // Create a theme instance

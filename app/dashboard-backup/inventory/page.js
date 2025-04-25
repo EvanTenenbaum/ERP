@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useInventory } from '../../../lib/hooks/useInventory';
+import { useInventory } from '@/lib/hooks/useInventory';
 import Button from '../../../components/ui/Button';
 import { PlusIcon, SearchIcon, FilterIcon, ArrowDownIcon, ArrowUpIcon } from 'lucide-react';
 

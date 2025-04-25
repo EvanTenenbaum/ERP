@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useApp } from '../../../../lib/context/AppContext';
+import { useApp } from '@/lib/context/AppContext';
 
 export default function NewCustomerPage() {
   const router = useRouter();

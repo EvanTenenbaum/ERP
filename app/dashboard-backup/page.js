@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useApp } from '../../lib/context/AppContext';
+import { useApp } from '@/lib/context/AppContext';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import Link from 'next/link';
 import { ArrowUpIcon, ArrowDownIcon, AlertTriangleIcon, PackageIcon, UsersIcon, DollarSignIcon, TruckIcon } from 'lucide-react';

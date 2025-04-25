@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useReports } from '../../../lib/hooks/useReports';
-import { useCustomers } from '../../../lib/hooks/useCustomers';
-import { useInventory } from '../../../lib/hooks/useInventory';
+import { useReports } from '@/lib/hooks/useReports';
+import { useCustomers } from '@/lib/hooks/useCustomers';
+import { useInventory } from '@/lib/hooks/useInventory';
 import Button from '../../../components/ui/Button';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import { DownloadIcon, FilterIcon, RefreshCw } from 'lucide-react';

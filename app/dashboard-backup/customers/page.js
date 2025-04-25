@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useCustomers } from '../../../lib/hooks/useCustomers';
+import { useCustomers } from '@/lib/hooks/useCustomers';
 import Button from '../../../components/ui/Button';
 import { PlusIcon, SearchIcon, FilterIcon } from 'lucide-react';
 
