@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '../../../../../../../../../lib/prisma';
-import { requirePermission } from '../../../../../../../../../lib/api-auth';
-import { PERMISSIONS } from '../../../../../../../../../lib/rbac';
+import { prisma } from '../../../../../../lib/prisma';
+import { requirePermission } from '../../../../../../lib/api-auth';
+import { PERMISSIONS } from '../../../../../../lib/rbac';
 
 export async function PUT(request, { params }) {
   const auth = await requirePermission(request, PERMISSIONS.EDIT_PRODUCT);
