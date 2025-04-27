@@ -6,6 +6,8 @@ const nextConfig = {
   // External packages that should be transpiled by Next.js
   experimental: {
     serverComponentsExternalPackages: ['@prisma/client', 'bcrypt'],
+    // Prevent static optimization of dashboard routes
+    disableOptimizedLoading: true,
   },
   
   // Disable TypeScript and ESLint checks during build to speed up deployment
@@ -43,16 +45,6 @@ const nextConfig = {
   // Enable React strict mode for better development experience
   reactStrictMode: true,
   swcMinify: true,
-  
-  // Properly handle API routes
-  rewrites: async () => {
-    return [
-      {
-        source: '/api/:path*',
-        destination: '/api/:path*',
-      },
-    ];
-  },
   
   // Define file extensions for pages
   pageExtensions: ['js', 'jsx', 'ts', 'tsx'],
