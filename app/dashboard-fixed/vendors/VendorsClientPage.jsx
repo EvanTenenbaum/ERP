@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import Button from '../../../../components/ui/Button';
+import Button from '@/components/ui/Button';
 
 export default function VendorsClientPage() {
   const router = useRouter();
